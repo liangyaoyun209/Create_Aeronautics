@@ -90,6 +90,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         // testing
 //        this.simulatedRigidbody.angularMomentum = new Vector3d(0, 0, 40);
 
+        AirshipManager.INSTANCE.tryAddEntity(AirshipManager.INSTANCE.getNextId(), this);
         airshipContraption = (AirshipContraption) contraption;
         System.out.println("New airship entity");
     }

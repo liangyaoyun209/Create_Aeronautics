@@ -9,7 +9,7 @@ public class PhysicsUtils {
 
     public static double[][][] LeviCivitaTensor;
     public final static double deltaTime = 0.05f;//converts the time unit to seconds instead of ticks
-    public final static double gravity = 5.00;// m/s^2
+    public final static double gravity = 4.00;// m/s^2
 
     public static void generateLeviCivitaTensor() {
         LeviCivitaTensor = new double[3][3][3];

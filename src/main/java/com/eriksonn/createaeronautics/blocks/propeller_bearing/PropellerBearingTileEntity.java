@@ -11,6 +11,8 @@ import com.eriksonn.createaeronautics.physics.collision.shape.MeshCollisionShape
 import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.Create;
+import com.simibubi.create.CreateClient;
+import com.simibubi.create.content.contraptions.components.fan.AirCurrent;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.ControlledContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingContraption;
@@ -20,6 +22,7 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.INamedIconOptions;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollOptionBehaviour;
+import com.simibubi.create.foundation.utility.RaycastHelper;
 import com.simibubi.create.foundation.utility.ServerSpeedProvider;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.BlockState;
@@ -28,9 +31,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
@@ -60,6 +61,7 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
     public double lastThrustOutput;
     private boolean insideMainTick=false;
     public float prevAngle;
+    double currentAirPressure=1;
 
 
     public PropellerBearingTileEntity(TileEntityType<? extends MechanicalBearingTileEntity> type) {
@@ -176,8 +178,9 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
     }
 
     void pushEntities() {
-        AirshipManager.AirshipOrientedInfo orientedInfo = AirshipManager.INSTANCE.getInfo(level, worldPosition);
 
+        AirshipManager.AirshipOrientedInfo orientedInfo = AirshipManager.INSTANCE.getInfo(level, worldPosition);
+        currentAirPressure = PhysicsUtils.getAirPressure(orientedInfo.position);
 
         double distance = getParticleRange() * 1.25;
         Vector3d center = VecHelper.getCenterOf(worldPosition).add(thrustDirection);
@@ -211,16 +214,39 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
 
 
         for (Entity entity : Entities) {
-            if (entity instanceof AbstractContraptionEntity)
+            if (entity instanceof AbstractContraptionEntity || AirCurrent.isPlayerCreativeFlying(entity))
                 continue;
-            Vector3d relativePosition = entity.getBoundingBox().getCenter().subtract(orientedInfo.position);
+
+            Vector3d entityPosition = entity.getBoundingBox().getCenter();
+            Vector3d relativePosition = entityPosition.subtract(orientedInfo.position);
+            relativePosition=relativePosition.subtract(MathUtils.rotateQuat(thrustDirection,orientedInfo.orientation));
+
             if (MathUtils.isInCylinder(directedNormal, relativePosition, distance, radius)) {
+
+                Vector3d startVector = entityPosition.subtract(directedNormal.scale(directedNormal.dot(relativePosition)));
+
+
+
+                //RaycastHelper.PredicateTraceResult result =  RaycastHelper
+                //        .rayTraceUntil(startVector,entityPosition,(x) -> !level.getBlockState(x).isAir());
+
+                BlockRayTraceResult result =  level.clip(new RayTraceContext(
+                        startVector,
+                        entityPosition,
+                        RayTraceContext.BlockMode.COLLIDER,
+                        RayTraceContext.FluidMode.NONE,
+                        null));
+                //CreateClient.OUTLINER.showLine("propeller bearing" + worldPosition,startVector,entityPosition);
+                if(result.getType() != RayTraceResult.Type.MISS)
+                {
+                    continue;
+                }
                 Vector3d previousMotion = entity.getDeltaMovement();
                 float sneakModifier = entity.isShiftKeyDown() ? 4096f : 512f;
                 float speed = (float)Math.abs(getAirFlow())*4f;
                 double entityDistance = directedNormal.dot(relativePosition);
                 float acceleration = (float) (speed / (sneakModifier * Math.pow((entityDistance + 0.25) / distance,0.5))) * 3f;
-                acceleration *= Math.pow(1 - entityDistance / distance, 0.15);
+                acceleration *= Math.pow(1 - entityDistance / distance, 0.15)*currentAirPressure;
                 float maxAcceleration = 5;
 
                 double xIn =
@@ -357,10 +383,10 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
 
             float directionScale = getDirectionScale();
 
-            float offset = 1.0f + directionScale * 0.5f;
+            float offset = 1.0f + directionScale * 0.25f;
 
             float speedScale=(float)getAirFlow()/20;
-            float particleCount = 0.02f * sailPositions.size() * Math.abs(rotationSpeed);
+            float particleCount = 0.02f * sailPositions.size() * Math.abs(rotationSpeed) * (float)currentAirPressure;
 
             particleCount += Create.RANDOM.nextFloat() - 1.0f;
             for (int i = 0; i < particleCount; i++) {
@@ -368,10 +394,15 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
                 Vector3d floatPos = new Vector3d(sailPos.getX(), sailPos.getY(), sailPos.getZ());
                 floatPos = movedContraption.applyRotation(floatPos, 0);
 
+                Vector3d randomOffset = VecHelper.offsetRandomly(Vector3d.ZERO, Create.RANDOM, .5f);
+                randomOffset = randomOffset.subtract(thrustDirection.scale(0.4*randomOffset.dot(thrustDirection)/thrustDirection.dot(thrustDirection)));
+
                 Vector3d pos = VecHelper.getCenterOf(this.worldPosition)
                         .add(Vector3d.atLowerCornerOf(direction.getNormal())
                                 .scale(offset))
-                        .add(floatPos);
+                        .add(floatPos)
+                        .add(randomOffset);
+
 
 
                 world.addParticle(new PropellerAirParticleData(this.worldPosition), pos.x, pos.y, pos.z, speed.x() * speedScale, speed.y() * speedScale, speed.z() * speedScale);
@@ -380,7 +411,8 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
     }
 
     public float getDirectionScale() {
-        float speed = getSpeed();
+        float speed = rotationSpeed;
+
         if (speed == 0)
             return 1;
         Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
@@ -460,7 +492,7 @@ public class PropellerBearingTileEntity extends MechanicalBearingTileEntity impl
 
             tooltip.add(componentSpacing.plainCopy().plainCopy()
                     .append(new StringTextComponent(" Thrust: ").withStyle(TextFormatting.GRAY))
-                    .append(new StringTextComponent(IHaveGoggleInformation.format(Math.abs(getThrust())/ PhysicsUtils.gravity)+" blocks at sealevel").withStyle(TextFormatting.AQUA)));
+                    .append(new StringTextComponent(IHaveGoggleInformation.format(currentAirPressure*Math.abs(getThrust())/ PhysicsUtils.gravity)+" blocks").withStyle(TextFormatting.AQUA)));
 
             tooltip.add(componentSpacing.plainCopy().plainCopy()
                     .append(new StringTextComponent(" Airflow: ").withStyle(TextFormatting.GRAY))

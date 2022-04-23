@@ -1,11 +1,14 @@
 package com.eriksonn.createaeronautics.mixins;
 
+import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.index.CABlocks;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.components.structureMovement.AssemblyException;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.MechanicalBearingBlock;
+import com.simibubi.create.content.contraptions.components.structureMovement.chassis.LinearChassisBlock;
+import com.simibubi.create.foundation.utility.Iterate;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +26,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import static net.minecraft.state.properties.BlockStateProperties.AXIS;
+
 @Mixin(value = Contraption.class)
 public class ContraptionMixin {
 
@@ -36,6 +41,23 @@ public class ContraptionMixin {
                 frontier.add(offset);
             return;
 
+        }
+
+        if(state.getBlock() instanceof LevititeCasingBlock) {
+            // Collect group of connected linear chassis
+            for (Direction offset : Iterate.directions) {
+                BlockPos current = pos.relative(offset);
+                if (visited.contains(current))
+                    continue;
+                if (!world.isLoaded(current))
+                    return;
+
+                BlockState neighbourState = world.getBlockState(current);
+                if (state.getBlock() != neighbourState.getBlock())
+                    continue;
+
+                frontier.add(current);
+            }
         }
 
     }

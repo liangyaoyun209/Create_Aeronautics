@@ -17,5 +17,6 @@
   "entity.createaeronautics.airship_contraption": "Airship Contraption",
   "entity.createaeronautics.gyroscopic_bearing_contraption": "Gyroscopic Bearing Contraption",
   "item.createaeronautics.endstone_powder": "Endstone Powder",
+  "item.createaeronautics.levitite_alloy": "Levitite Alloy",
   "itemGroup.main_group": "Create: Aeronautics"
 }

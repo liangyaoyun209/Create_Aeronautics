@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EEE",
+    "LOL",
+    "EEE"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:crying_obsidian"
+    },
+    "E": {
+      "item": "minecraft:end_stone"
+    },
+    "L": {
+      "item": "createaeronautics:levitite_alloy"
+    }
+  },
+  "result": {
+    "item": "createaeronautics:levitite_casing",
+    "count": 4
+  }
+}

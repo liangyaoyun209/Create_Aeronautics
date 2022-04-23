@@ -12,6 +12,8 @@ import com.simibubi.create.content.contraptions.components.structureMovement.bea
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.utility.VecHelper;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -27,6 +29,7 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     public Vector3d blockNormal;
     public Vector3d tiltVector=new Vector3d(0,1,0);
     private Vector3d targetVector=new Vector3d(0,1,0);
+    boolean powered=false;
     public GyroscopicPropellerBearingTileEntity(TileEntityType<? extends PropellerBearingTileEntity> type) {
         super(type);
         tiltQuat=new Quaternion(0,0,0,1);
@@ -85,6 +88,21 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
         ((GyroscopicControlledContraptionEntity)movedContraption).tiltQuat=tiltQuat;
         ((GyroscopicControlledContraptionEntity)movedContraption).direction=getBlockState().getValue(FACING);
     }
+    @Override
+    public void write(CompoundNBT compound, boolean clientPacket) {
+        compound.putBoolean("IsPowered", powered);
+
+        super.write(compound, clientPacket);
+    }
+
+    @Override
+    protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+        powered = compound.getBoolean("IsPowered");
+        super.fromTag(state, compound, clientPacket);
+    }
+    public void updateSignal() {
+        powered = this.level.hasNeighborSignal(this.worldPosition);
+    }
     public Vector3d getForce(BlockPos localPos, double airPressure, Vector3d velocity, AbstractContraptionRigidbody rigidbody)
     {
         Vector3d globalTarget = new Vector3d(0,-getDirectionScale(),0);
@@ -93,17 +111,36 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     }
     public void setTilt(Vector3d target)
     {
+
+        if(powered)
+            target=blockNormal;
+        targetVector=target;
         Direction direction = getBlockState().getValue(FACING);
         blockNormal = new Vector3d(direction.getStepX(),direction.getStepY(),direction.getStepZ());
 
-        targetVector=target;
-        tiltVector = MathUtils.clampIntoCone(target,blockNormal,Math.toRadians(12));
+
+        target = MathUtils.clampIntoCone(target,blockNormal,Math.toRadians(12));
+        float lerpDistance = 1f;
+        double currentThrust = Math.abs(getThrust());
+        if(currentThrust<0.5)
+            lerpDistance*=currentThrust/0.5;
         if(disassemblySlowdown)
         {
-            tiltVector=VecHelper.lerp(disassemblyTimer/disassemblyTimerTotal,blockNormal,tiltVector);
-
+            lerpDistance*=disassemblyTimer/disassemblyTimerTotal;
         }
+        target=VecHelper.lerp(lerpDistance,blockNormal,target);
+
+        double maxStep = 0.02;
+        Vector3d difference = target.subtract(tiltVector);
+        if(difference.lengthSqr()>maxStep*maxStep)
+        {
+            tiltVector = tiltVector.add(difference.normalize().scale(maxStep));
+        }else
+            tiltVector=target;
+        tiltVector = tiltVector.normalize();
+
         tiltQuat=MathUtils.getQuaternionFromVectorRotation(blockNormal,tiltVector);
+
         thrustDirection=tiltVector;
     }
     @Override

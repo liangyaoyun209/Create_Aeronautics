@@ -2,6 +2,7 @@ package com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing;
 
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingTileEntity;
+import com.eriksonn.createaeronautics.blocks.stationary_potato_cannon.StationaryPotatoCannonTileEntity;
 import com.eriksonn.createaeronautics.index.CAShapes;
 import com.eriksonn.createaeronautics.index.CATileEntities;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingBlock;
@@ -31,6 +32,14 @@ public class GyroscopicBearingBlock extends BearingBlock implements ITE<Gyroscop
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return CATileEntities.GYROSCOPIC_PROPELLER_BEARING.create();
+    }
+    @Override
+    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+                                boolean isMoving) {
+        if (worldIn.isClientSide)
+            return;
+        this.withTileEntityDo(worldIn, pos, GyroscopicPropellerBearingTileEntity::updateSignal);
+
     }
     @Override
     public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,

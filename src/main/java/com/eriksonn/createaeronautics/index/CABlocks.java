@@ -1,6 +1,7 @@
 package com.eriksonn.createaeronautics.index;
 
 import com.eriksonn.createaeronautics.CreateAeronautics;
+import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerBlock;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicBearingBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
@@ -80,8 +81,8 @@ public class CABlocks {
             .transform(customItemModel())
             .register();
 
-    public static final BlockEntry<CasingBlock> LEVITITE_CASING = REGISTRATE.block("levitite_casing", CasingBlock::new)
-            .transform(BuilderTransformers.casing(CASpriteShifts.LEVITITE_CASING))
+    public static final BlockEntry<LevititeCasingBlock> LEVITITE_CASING = REGISTRATE.block("levitite_casing", LevititeCasingBlock::new)
+            .transform(BuilderTransformers.casing(CASpriteShifts.LEVITITE_CASING)).properties((p) -> p.lightLevel(($) -> 12))
             .register();
 
     public static final BlockEntry<StirlingEngineBlock> STIRLING_ENGINE = REGISTRATE.block("stirling_engine", StirlingEngineBlock::new)
