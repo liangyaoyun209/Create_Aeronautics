@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "facing=down,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block",
+      "x": 180
+    },
+    "facing=up,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block"
+    },
+    "facing=north,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block",
+      "x": 90
+    },
+    "facing=south,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east,powered=false": {
+      "model": "createaeronautics:block/modulating_redstone_link/block",
+      "x": 90,
+      "y": 90
+    },
+    "facing=down,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered",
+      "x": 180
+    },
+    "facing=up,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered"
+    },
+    "facing=north,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered",
+      "x": 90
+    },
+    "facing=south,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east,powered=true": {
+      "model": "createaeronautics:block/modulating_redstone_link/block_powered",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

@@ -25,6 +25,13 @@ public class BlockStateUtils {
         BlockStateGen.directionalAxisBlock(ctx, prov, (blockState, vertical) -> prov.models()
                 .getExistingFile(prov.modLoc("block/" + ctx.getName() + "/" + (vertical ? "vertical" : "horizontal") + (blockState.getValue(BlockStateProperties.POWERED) ? "_powered" : ""))));
     }
+    public static <T extends Block> void facingPoweredAxisBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov) {
+        prov.directionalBlock(ctx.getEntry(),
+                blockState -> prov.models().getExistingFile(
+                        prov.modLoc("block/"+ ctx.getName() +"/block"+ (blockState.getValue(BlockStateProperties.POWERED) ? "_powered" : ""))
+                )
+        );
+    }
 
     public static <T extends Block> void horizontalFacingLitBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov) {
         prov.horizontalBlock(ctx.get(), blockState -> prov.models()

@@ -5,6 +5,7 @@ import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerBlock;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicBearingBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
+import com.eriksonn.createaeronautics.blocks.redstone.modulating_redstone_link.ModulatingRedstoneLinkBlock;
 import com.eriksonn.createaeronautics.blocks.stationary_potato_cannon.StationaryPotatoCannonBlock;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineBlock;
 import com.eriksonn.createaeronautics.blocks.torsion_spring.TorsionSpringBlock;
@@ -23,6 +24,7 @@ import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderType;
 
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 
@@ -91,6 +93,14 @@ public class CABlocks {
             .blockstate(BlockStateUtils::horizontalFacingLitBlockstate)
             .tag(AllTags.AllBlockTags.SAFE_NBT.tag) //Dono what this tag means (contraption safe?).
             .item().transform(customItemModel())
+            .register();
+    public static final BlockEntry<ModulatingRedstoneLinkBlock> MODULATING_REDSTONE_LINK = REGISTRATE.block("modulating_redstone_link", ModulatingRedstoneLinkBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .blockstate(BlockStateUtils::facingPoweredAxisBlockstate)
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag) //Dono what this tag means (contraption safe?).
+            .item().transform(customItemModel())
+            .addLayer(() -> RenderType::translucent)
             .register();
 
     public static void register() {
