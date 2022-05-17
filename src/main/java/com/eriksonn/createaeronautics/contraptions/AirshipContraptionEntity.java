@@ -756,4 +756,9 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             return secondYRotation;
         }
     }
+
+    @Override
+    public Vector3d getContactPointMotion(Vector3d globalContactPoint) {
+        return simulatedRigidbody.getVelocityAtPoint(toLocalVector(globalContactPoint,0.0f).subtract(0.5, 0.5, 0.5)).scale(0.05f);
+    }
 }
