@@ -228,10 +228,11 @@ public class AirshipManager {
                 INSTANCE.tick();
             }
         }
-        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        @SubscribeEvent
         public static void renderStartEvent(TickEvent.RenderTickEvent e)
         {
             Minecraft mc = Minecraft.getInstance();
+            if(mc.player == null) return;
             BlockPos pos = mc.player.blockPosition();
 
             if (!mc.player.isOnGround())
