@@ -8,6 +8,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
+import com.sun.org.apache.bcel.internal.generic.FSUB;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -87,6 +88,26 @@ public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisp
             }
             time=0;
         }
+
+        if(!this.level.isClientSide && this.dissasembleNextTick) {
+
+            int plotId=AirshipManager.getIdFromPlotPos(this.worldPosition);
+
+
+
+            if (this.movedContraption != null) {
+
+
+                this.movedContraption.disassemble();
+
+                AllSoundEvents.CONTRAPTION_DISASSEMBLE.playOnServer(this.level, this.worldPosition);
+            }
+            //AirshipManager.INSTANCE.removePlot(plotId);
+            this.movedContraption = null;
+            this.running = false;
+            this.assembleNextTick = false;
+            this.sendData();
+        }
         if(this.movedContraption!=null)
         {
 time++;
@@ -130,22 +151,14 @@ stack[0].mulPose(Q);
             }
         }*/
     }
+    public boolean dissasembleNextTick = false;
     public void disassemble() {
         if (this.running || this.movedContraption != null) {
-
-            int plotId=AirshipManager.getIdFromPlotPos(this.worldPosition);
-
-
-            if (this.movedContraption != null) {
-                this.movedContraption.disassemble();
-
-                AllSoundEvents.CONTRAPTION_DISASSEMBLE.playOnServer(this.level, this.worldPosition);
-            }
-            //AirshipManager.INSTANCE.removePlot(plotId);
-            this.movedContraption = null;
-            this.running = false;
-            this.assembleNextTick = false;
-            this.sendData();
+            movedContraption.subContraptions.forEach((x, y) -> {
+                y.disassemble();
+                y.remove();
+            });
+            dissasembleNextTick = true;
         }
     }
     public void onStall() {

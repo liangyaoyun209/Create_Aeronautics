@@ -230,11 +230,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     @Override
     public void onRemovedFromWorld() {
-        subContraptions.forEach((uuid, contraptionEntity) -> {
-            contraptionEntity.getContraption().addBlocksToWorld(contraptionEntity.level, ((ControlledContraptionEntityMixin)contraptionEntity).invokeMakeStructureTransform());
-            contraptionEntity.remove();
-            serverDestroySubContraption(contraptionEntity);
-        });
         super.onRemovedFromWorld();
     }
 
