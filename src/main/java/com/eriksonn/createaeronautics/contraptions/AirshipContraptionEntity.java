@@ -230,11 +230,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     @Override
     public void onRemovedFromWorld() {
-        subContraptions.forEach((uuid, contraptionEntity) -> {
-            contraptionEntity.getContraption().addBlocksToWorld(contraptionEntity.level, ((ControlledContraptionEntityMixin)contraptionEntity).invokeMakeStructureTransform());
-            contraptionEntity.remove();
-            serverDestroySubContraption(contraptionEntity);
-        });
         super.onRemovedFromWorld();
     }
 
@@ -755,5 +750,10 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         public float getYawOffset() {
             return secondYRotation;
         }
+    }
+
+    @Override
+    public Vector3d getContactPointMotion(Vector3d globalContactPoint) {
+        return simulatedRigidbody.getVelocityAtPoint(toLocalVector(globalContactPoint,0.0f).subtract(0.5, 0.5, 0.5)).scale(0.05f);
     }
 }

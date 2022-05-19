@@ -7,21 +7,27 @@ import com.eriksonn.createaeronautics.mixins.ContraptionHolderAccessor;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
 import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllMovementBehaviours;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.MechanicalBearingTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.SailBlock;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
+import com.simibubi.create.content.contraptions.components.turntable.TurntableTileEntity;
+import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Iterate;
+import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.IWaterLoggable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.village.PointOfInterestType;
@@ -222,26 +228,27 @@ public class AirshipManager {
                 INSTANCE.tick();
             }
         }
-        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        @SubscribeEvent
         public static void renderStartEvent(TickEvent.RenderTickEvent e)
         {
-            //if(e.phase == TickEvent.Phase.START)
-            //{
-            //    for (Map.Entry<Integer,AirshipContraptionEntity> entry: INSTANCE.AllAirships.entrySet()) {
-            //        ServerWorld world = AirshipDimensionManager.INSTANCE.getWorld();
-            //        BlockPos anchorPos = getPlotPosFromId(entry.getKey());
-            //        AirshipContraptionEntity entity = entry.getValue();
-            //        AirshipContraptionData data = INSTANCE.AirshipData.get(entry.getKey());
-            //        if(entity.level.isLoaded(entity.blockPosition())) {
-            //            for (Map.Entry<BlockPos, ControlledContraptionEntity> entry2 : data.controlledContraptions.entrySet()) {
-            //                ControlledContraptionEntity contraptionEntity=entry2.getValue();
-            //                //((AbstractContraptionEntityExtension)contraptionEntity).createAeronautics$setOriginalPosition(contraptionEntity.position());
-            //                Vector3d v = entity.position().add(contraptionEntity.position()).subtract(new Vector3d(anchorPos.getX(),anchorPos.getY(),anchorPos.getZ()));
-            //                contraptionEntity.setPos(v.x,v.y,v.z);
-            //            }
-            //        }
-            //    }
-            //}
+            Minecraft mc = Minecraft.getInstance();
+            if(mc.player == null) return;
+            BlockPos pos = mc.player.blockPosition();
+
+            if (!mc.player.isOnGround())
+                return;
+            if (mc.isPaused())
+                return;
+
+            List<AirshipContraptionEntity> possibleContraptions = mc.level.getEntitiesOfClass(AirshipContraptionEntity.class, mc.player.getBoundingBox().inflate(10.0));
+
+            for (AirshipContraptionEntity contraption : possibleContraptions) {
+                if(contraption.collidingEntities.containsKey(mc.player)) {
+                    float speed = (float) (contraption.simulatedRigidbody.rotate(contraption.simulatedRigidbody.getAngularVelocity()).y * (180.0 / Math.PI));
+                    mc.player.yRot = mc.player.yRotO + speed * AnimationTickHolder.getPartialTicks() * 0.05f;
+                    mc.player.yBodyRot = mc.player.yRot;
+                }
+            }
         }
     }
     public class AirshipOrientedInfo {

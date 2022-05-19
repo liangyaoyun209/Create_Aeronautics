@@ -2,12 +2,14 @@ package com.eriksonn.createaeronautics.contraptions;
 
 import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
 import com.eriksonn.createaeronautics.index.CAEntityTypes;
+import com.eriksonn.createaeronautics.mixins.ControlledContraptionEntityMixin;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
 import com.simibubi.create.foundation.utility.UniqueLinkedList;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -18,6 +20,7 @@ import net.minecraftforge.fml.DistExecutor;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -39,7 +42,9 @@ public class AirshipContraption extends Contraption {
 
         }
     }
-    public boolean i(World world, BlockPos pos, @Nullable Direction forcedDirection)
+
+    @Override
+    public boolean searchMovedStructure(World world, BlockPos pos, @Nullable Direction forcedDirection)
             throws AssemblyException {
         Queue<BlockPos> frontier = new UniqueLinkedList<>();
         Set<BlockPos> visited = new HashSet<>();
@@ -59,7 +64,37 @@ public class AirshipContraption extends Contraption {
         for (int limit = 100000; limit > 0; limit--) {
             if (frontier.isEmpty())
                 return true;
-            if (!moveBlock(world, forcedDirection, frontier, visited))
+
+
+            // move subcontraptions
+            TileEntity be = world.getBlockEntity(frontier.peek());
+
+            if(be != null) {
+                List<AbstractContraptionEntity> contraptions = be.getLevel().getEntitiesOfClass(AbstractContraptionEntity.class, new AxisAlignedBB(be.getBlockPos()).inflate(1.0), EntityPredicates.ENTITY_STILL_ALIVE);
+
+
+                for (AbstractContraptionEntity contraptionEntity : contraptions) {
+
+                    if (contraptionEntity instanceof ControlledContraptionEntity) {
+                        ControlledContraptionEntity controlledContraptionEntity = (ControlledContraptionEntity) contraptionEntity;
+                        ControlledContraptionEntityMixin accessor = (ControlledContraptionEntityMixin) controlledContraptionEntity;
+                        BlockPos controllerPos = accessor.getControllerPos();
+
+                        if (controllerPos.equals(be.getBlockPos())) {
+                            controlledContraptionEntity.disassemble();
+                        }
+
+                    }
+
+                }
+            }
+
+
+
+
+            boolean moveBlockResult = moveBlock(world, forcedDirection, frontier, visited);
+
+            if (!moveBlockResult)
                 return false;
         }
         throw AssemblyException.structureTooLarge();
