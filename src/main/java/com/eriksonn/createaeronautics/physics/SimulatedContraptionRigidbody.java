@@ -70,6 +70,7 @@ public AirshipContraption contraption;
     double totalAccumulatedBuoyancy =0.0;
 
     BuoyancyController levititeBuoyancyController=new BuoyancyController(6.0);
+    AirshipAirFiller airshipAirFiller = new AirshipAirFiller();
     boolean isInitialized=false;
 
     Vector3f CurrentAxis=new Vector3f(1,1,1);
@@ -112,6 +113,8 @@ public AirshipContraption contraption;
             mergeMassFromSubContraptions();
 
             updateLevititeBuoyancy();
+            airshipAirFiller.FillAir(contraption);
+
             initCollision();
             isInitialized=true;
         }
@@ -882,14 +885,14 @@ public AirshipContraption contraption;
     {
         return pos.subtract(centerOfMass);
     }
-    class BuoyancyController
+    public class BuoyancyController
     {
         Vector3d averagePos;
         int totalCount;
         Vector3d upVector;
         Vector3d projectedAveragePos;
         double averageSquaredMagnitudes;
-        double strengthScale=0.0;
+        public double strengthScale=0.0;
         public BuoyancyController(double strengthScale)
         {
             this.strengthScale=strengthScale;
