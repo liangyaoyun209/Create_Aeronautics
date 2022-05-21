@@ -98,7 +98,8 @@ public abstract class ServerWorldEventMixin {
                 // rotate entity motion
                 entity.setDeltaMovement(airship.applyRotation(entity.getDeltaMovement(), 1.0f));
 
-                entity.setPosRaw(position.x, position.y, position.z);
+                entity.setPos(position.x, position.y, position.z);
+                entity.setPosAndOldPos(position.x, position.y, position.z);
                 entity.setLevel(airship.level);
                 return airship.level.addFreshEntity(entity);
             }
