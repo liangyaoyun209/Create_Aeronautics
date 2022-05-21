@@ -25,6 +25,13 @@ public class BlockStateUtils {
         BlockStateGen.directionalAxisBlock(ctx, prov, (blockState, vertical) -> prov.models()
                 .getExistingFile(prov.modLoc("block/" + ctx.getName() + "/" + (vertical ? "vertical" : "horizontal") + (blockState.getValue(BlockStateProperties.POWERED) ? "_powered" : ""))));
     }
+    public static <T extends Block> void facingPoweredAxisBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov) {
+        prov.directionalBlock(ctx.getEntry(),
+                blockState -> prov.models().getExistingFile(
+                        prov.modLoc("block/"+ ctx.getName() +"/block"+ (blockState.getValue(BlockStateProperties.POWERED) ? "_powered" : ""))
+                )
+        );
+    }
 
     public static <T extends Block> void horizontalFacingLitBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov) {
         prov.horizontalBlock(ctx.get(), blockState -> prov.models()
@@ -45,13 +52,13 @@ public class BlockStateUtils {
                 }, BlockStateProperties.WATERLOGGED);
     }
 
-    public static <T extends Block> void propellerBearingBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov) {
+    public static <T extends Block> void facingBlockstate(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,String modelPath) {
         prov.directionalBlock(ctx.getEntry(),
                 blockState -> prov.models().getExistingFile(
-                        prov.modLoc("block/propeller_bearing/block_" + (blockState.getValue(PropellerBearingBlock.DIRECTION) == PropellerBearingBlock.Direction.PULL ? "forward" : "reverse")
-                        )
+                        prov.modLoc(modelPath)
                 )
         );
     }
+
 
 }

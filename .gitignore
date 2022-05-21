@@ -21,5 +21,8 @@ build
 eclipse
 run
 
+# vim
+*.swp
+
 # Files from Forge MDK
 forge*changelog.txt

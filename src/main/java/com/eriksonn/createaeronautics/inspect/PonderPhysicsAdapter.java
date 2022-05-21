@@ -1,14 +1,12 @@
 package com.eriksonn.createaeronautics.inspect;
 
-import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.eriksonn.createaeronautics.physics.api.PhysicsAdapter;
+import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapePart;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -46,7 +44,7 @@ public class PonderPhysicsAdapter implements PhysicsAdapter {
 
     @Override
     public Vector3d applyRotation(Vector3d localPos, float partialTicks) {
-        return SimulatedContraptionRigidbody.rotateQuat(localPos, inspectUI.rigidbody.getPartialOrientation(partialTicks));
+        return MathUtils.rotateQuat(localPos, inspectUI.rigidbody.getPartialOrientation(partialTicks));
     }
 
     @Override

@@ -1,10 +1,14 @@
 {
   "block.createaeronautics.airship_assembler": "Airship Assembler",
+  "block.createaeronautics.gyroscopic_propeller_bearing": "Gyroscopic Propeller Bearing",
   "block.createaeronautics.levitite_casing": "Levitite Casing",
+  "block.createaeronautics.modulating_redstone_link": "Modulating Redstone Link",
   "block.createaeronautics.propeller_bearing": "Propeller Bearing",
   "block.createaeronautics.stationary_potato_cannon": "Stationary Potato Cannon",
   "block.createaeronautics.stirling_engine": "Stirling Engine",
   "block.createaeronautics.torsion_spring": "Torsion Spring",
+  "create.generic.pull_when_clockwise": "Pull air when clockwise",
+  "create.generic.push_when_clockwise": "Push air when clockwise",
   "createaeronautics.ponder.stirling_engine.header": "Generating Rotational Force using the Stirling Engine",
   "createaeronautics.ponder.stirling_engine.text_1": "The Stirling Engine generates rotational force by burning fuel",
   "createaeronautics.ponder.stirling_engine.text_2": "The engine provides a moderate amount of stress capacity",
@@ -12,6 +16,8 @@
   "death.attack.createaeronautics.stationary_potato_cannon": "%1$s was shot by a Stationary Potato Cannon",
   "death.attack.createaeronautics.stationary_potato_cannon.item": "%1$s was shot by a Stationary Potato Cannon using %2$s",
   "entity.createaeronautics.airship_contraption": "Airship Contraption",
+  "entity.createaeronautics.gyroscopic_bearing_contraption": "Gyroscopic Bearing Contraption",
   "item.createaeronautics.endstone_powder": "Endstone Powder",
+  "item.createaeronautics.levitite_alloy": "Levitite Alloy",
   "itemGroup.main_group": "Create: Aeronautics"
 }

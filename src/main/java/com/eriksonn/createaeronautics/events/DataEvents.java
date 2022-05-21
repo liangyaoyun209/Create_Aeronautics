@@ -28,6 +28,8 @@ public class DataEvents {
                 "item",
                 "%1$s was shot by a Stationary Potato Cannon using %2$s"
         );
+        CreateAeronautics.registrate().addRawLang("create.generic.pull_when_clockwise", "Pull air when clockwise");
+        CreateAeronautics.registrate().addRawLang("create.generic.push_when_clockwise", "Push air when clockwise");
         CAPonderIndex.register();
         PonderLocalization.provideRegistrateLang(CreateAeronautics.registrate());
     }

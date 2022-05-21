@@ -15,4 +15,5 @@ public interface ControlledContraptionEntityMixin {
 
     @Accessor(remap = false)
     BlockPos getControllerPos();
+
 }

@@ -1,6 +1,8 @@
 package com.eriksonn.createaeronautics.index;
 
 import com.eriksonn.createaeronautics.CreateAeronautics;
+import com.eriksonn.createaeronautics.particle.LevititeSparkleParticle;
+import com.eriksonn.createaeronautics.particle.LevititeSparkleParticleData;
 import com.eriksonn.createaeronautics.particle.PropellerAirParticleData;
 import com.simibubi.create.content.contraptions.particle.ICustomParticleData;
 import com.simibubi.create.foundation.utility.Lang;
@@ -19,7 +21,8 @@ import java.util.function.Supplier;
 
 public enum CAParticleTypes {
 
-    PROPELLER_AIR_FLOW(PropellerAirParticleData::new);
+    PROPELLER_AIR_FLOW(PropellerAirParticleData::new),
+    LEVITITE_SPARKLE(LevititeSparkleParticleData::new);
     private CAParticleTypes.ParticleEntry<?> entry;
 
     <D extends IParticleData> CAParticleTypes(Supplier<? extends ICustomParticleData<D>> typeFactory) {

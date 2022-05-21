@@ -3,6 +3,9 @@ package com.eriksonn.createaeronautics.index;
 
 import com.eriksonn.createaeronautics.CreateAeronautics;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerTileEntity;
+import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingInstance;
+import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingRenderer;
+import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingTileEntity;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingTileEntity;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineInstance;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineRenderer;
@@ -41,6 +44,12 @@ public class CATileEntities {
             .instance(() -> BearingInstance::new)
             .validBlocks(CABlocks.PROPELLER_BEARING)
             .renderer(() -> BearingRenderer::new)
+            .register();
+    public static final TileEntityEntry<GyroscopicPropellerBearingTileEntity> GYROSCOPIC_PROPELLER_BEARING = CreateAeronautics.registrate()
+            .tileEntity("gyroscopic_propeller_bearing", GyroscopicPropellerBearingTileEntity::new)
+            .instance(() -> GyroscopicPropellerBearingInstance::new)
+            .validBlocks(CABlocks.GYROSCOPIC_PROPELLER_BEARING)
+            .renderer(() -> GyroscopicPropellerBearingRenderer::new)
             .register();
     public static final TileEntityEntry<StirlingEngineTileEntity> STIRLING_ENGINE = CreateAeronautics.registrate()
             .tileEntity("stirling_engine", StirlingEngineTileEntity::new)

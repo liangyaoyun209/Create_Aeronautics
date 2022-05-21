@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " T ",
+    "PCP",
+    "ASA"
+  ],
+  "key": {
+    "S": {
+      "item": "create:shaft"
+    },
+    "P": {
+      "item": "create:precision_mechanism"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    },
+    "T": {
+      "item": "create:turntable"
+    },
+    "A": {
+      "tag": "forge:plates/iron"
+    }
+  },
+  "result": {
+    "item": "createaeronautics:gyroscopic_propeller_bearing",
+    "count": 1
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "tag": "forge:dusts/glowstone"
+    },
+    {
+      "tag": "forge:dusts/glowstone"
+    },
+    {
+      "tag": "forge:dusts/glowstone"
+    },
+    {
+      "item": "createaeronautics:endstone_powder"
+    },
+    {
+      "item": "createaeronautics:endstone_powder"
+    },
+    {
+      "item": "createaeronautics:endstone_powder"
+    },
+    {
+      "item": "create:crushed_brass"
+    }
+  ],
+  "results": [
+    {
+      "item": "createaeronautics:levitite_alloy",
+      "count": 1
+    }
+  ],
+  "heatRequirement": "superheated"
+}

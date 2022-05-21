@@ -32,6 +32,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class StationaryPotatoCannonTileEntity extends KineticTileEntity {
 
@@ -78,6 +79,9 @@ public class StationaryPotatoCannonTileEntity extends KineticTileEntity {
         if(ItemTimer<20)
             ItemTimer++;
         List<Entity> Entities= level.getEntities(null,getInternalHitbox());
+        Entities=Entities.stream()
+                .filter((x)->Math.min(x.getBoundingBox().getXsize(),x.getBoundingBox().getZsize())<0.5)
+                .collect(Collectors.toList());
         if(this.state == State.CHARGING)
         {
             if(!currentStack.isEmpty())

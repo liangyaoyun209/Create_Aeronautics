@@ -1,5 +1,6 @@
 package com.eriksonn.createaeronautics.blocks.propeller_bearing;
 
+import com.eriksonn.createaeronautics.index.CAShapes;
 import com.eriksonn.createaeronautics.index.CATileEntities;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingBlock;
 import com.simibubi.create.foundation.block.ITE;
@@ -15,24 +16,17 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
 public class PropellerBearingBlock extends BearingBlock implements ITE<PropellerBearingTileEntity> {
-    public static final EnumProperty<Direction> DIRECTION = EnumProperty.create("direction",Direction.class);
-    public enum Direction implements IStringSerializable {
-        PUSH,PULL, ;
-        @Override
-        public String getSerializedName() {
-            return Lang.asId(name());
-        }
-    }
     public PropellerBearingBlock(Properties properties) {
         super(properties);
     }
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(DIRECTION);
         super.createBlockStateDefinition(builder);
     }
     @Override
@@ -66,11 +60,12 @@ public class PropellerBearingBlock extends BearingBlock implements ITE<Propeller
         }
         return ActionResultType.PASS;
     }
-    public static PropellerBearingBlock.Direction getDirectionof(BlockState blockState) {
-        return blockState.hasProperty(PropellerBearingBlock.DIRECTION) ? blockState.getValue(PropellerBearingBlock.DIRECTION)
-                : Direction.PULL;
-    }
+    @Override
+    public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext context)
+    {
+        return CAShapes.PROPELLER_BEARING.get(state.getValue(FACING));
 
+    }
 
     @Override
     public Class<PropellerBearingTileEntity> getTileEntityClass() {

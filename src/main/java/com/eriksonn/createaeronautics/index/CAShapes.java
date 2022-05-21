@@ -32,7 +32,13 @@ public class CAShapes {
             .forAxis(),
     STIRLING_ENGINE = shape(0,0,0,16,2,16)
             .add(3,2,0,13,12,16)
-            .forDirectional(Direction.NORTH);
+            .forDirectional(Direction.NORTH),
+    PROPELLER_BEARING = shape(0,0,0,16,16,16)
+            .erase(0,0,0,5,12,5)
+            .erase(16,0,0,11,12,5)
+            .erase(0,0,16,5,12,11)
+            .erase(16,0,16,11,12,11)
+            .forDirectional();
     private static CAShapes.Builder shape(VoxelShape shape) {
         return new CAShapes.Builder(shape);
     }

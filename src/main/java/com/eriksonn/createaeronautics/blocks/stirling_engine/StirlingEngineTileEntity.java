@@ -12,6 +12,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -38,6 +39,7 @@ public class StirlingEngineTileEntity extends GeneratingKineticTileEntity {
     float generatedCapacity = 32;
     protected ItemStack currentStack;
     public LazyOptional<IItemHandlerModifiable> invHandler;
+    boolean hasInfiniteFuel=false;
     // Client
     InterpolatedChasingValue visualSpeed = new InterpolatedChasingValue();
     float angle;
@@ -99,6 +101,7 @@ public class StirlingEngineTileEntity extends GeneratingKineticTileEntity {
         }
 
         boolean isLit = burnTime>0;
+        hasInfiniteFuel = burnTime>20*3600*24*30;//A month of burn time is considered infinite
 
         if(isLit && level.isClientSide)
         {
@@ -133,8 +136,10 @@ public class StirlingEngineTileEntity extends GeneratingKineticTileEntity {
             pos=pos.add(random);
 
             Vector3d speed = VecHelper.offsetRandomly(Vector3d.ZERO,Create.RANDOM,0.01f);
-
-            level.addParticle(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, speed.x, speed.y, speed.z);
+            if(hasInfiniteFuel)
+                level.addParticle(new RedstoneParticleData(0.8f,0,0.8f,1), pos.x, pos.y, pos.z, speed.x, speed.y, speed.z);
+            else
+                level.addParticle(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, speed.x, speed.y, speed.z);
         }
     }
     public void write(CompoundNBT compound, boolean clientPacket) {
@@ -185,19 +190,33 @@ public class StirlingEngineTileEntity extends GeneratingKineticTileEntity {
             }
 
         }
-        if(burnTime>0)
-        {
-            int sec = burnTime/20;
+        if(burnTime>0) {
+            int sec = burnTime / 20;
 
-            tooltip.add(componentSpacing.plainCopy().plainCopy()
-                    .append(new StringTextComponent(" Burn time: ").withStyle(TextFormatting.GRAY))
-                    .append(new StringTextComponent(getTime(sec)).withStyle(TextFormatting.AQUA)));
+            if (hasInfiniteFuel) {
+                tooltip.add(componentSpacing.plainCopy().plainCopy()
+                        .append(new StringTextComponent(" Burn time: ").withStyle(TextFormatting.GRAY))
+                        .append(new StringTextComponent("Infinite").withStyle(TextFormatting.LIGHT_PURPLE)));
+            } else {
+                tooltip.add(componentSpacing.plainCopy().plainCopy()
+                        .append(new StringTextComponent(" Burn time: ").withStyle(TextFormatting.GRAY))
+                        .append(new StringTextComponent(getTime(sec)).withStyle(TextFormatting.AQUA)));
+            }
+
             if(!currentStack.isEmpty() && !hasByproduct) {
-                int totalSec = sec;
-                totalSec+=currentStack.getCount()*net.minecraftforge.common.ForgeHooks.getBurnTime(currentStack, null)/20;
-                tooltip.add(componentSpacing.plainCopy()
-                        .append(new StringTextComponent(" Burn time total: ").withStyle(TextFormatting.GRAY))
-                        .append(new StringTextComponent(getTime(totalSec)).withStyle(TextFormatting.AQUA)));
+                int nextBurnTime = net.minecraftforge.common.ForgeHooks.getBurnTime(currentStack, null);
+                if(nextBurnTime>20*3600*24*30||hasInfiniteFuel) {
+                    tooltip.add(componentSpacing.plainCopy()
+                            .append(new StringTextComponent(" Burn time total: ").withStyle(TextFormatting.GRAY))
+                            .append(new StringTextComponent("Infinite").withStyle(TextFormatting.LIGHT_PURPLE)));
+                }
+                else {
+                    int totalSec = sec;
+                    totalSec += currentStack.getCount() * nextBurnTime / 20;
+                    tooltip.add(componentSpacing.plainCopy()
+                            .append(new StringTextComponent(" Burn time total: ").withStyle(TextFormatting.GRAY))
+                            .append(new StringTextComponent(getTime(totalSec)).withStyle(TextFormatting.AQUA)));
+                }
             }
         }
         return true;

@@ -8,11 +8,9 @@ import com.eriksonn.createaeronautics.mixins.ControlledContraptionEntityMixin;
 import com.eriksonn.createaeronautics.network.NetworkMain;
 import com.eriksonn.createaeronautics.network.packet.*;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
-import com.eriksonn.createaeronautics.physics.SubcontraptionRigidbody;
 import com.eriksonn.createaeronautics.physics.api.ContraptionEntityPhysicsAdapter;
-import com.eriksonn.createaeronautics.physics.collision.shape.ICollisionShape;
-import com.eriksonn.createaeronautics.physics.collision.shape.MeshCollisionShape;
 import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
+import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.eriksonn.createaeronautics.utils.Matrix3dExtension;
 import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
@@ -22,7 +20,6 @@ import com.simibubi.create.content.contraptions.components.structureMovement.*;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripItem;
 import com.simibubi.create.foundation.collision.Matrix3d;
-import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.Block;
@@ -39,7 +36,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -94,6 +90,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         // testing
 //        this.simulatedRigidbody.angularMomentum = new Vector3d(0, 0, 40);
 
+        AirshipManager.INSTANCE.tryAddEntity(AirshipManager.INSTANCE.getNextId(), this);
         airshipContraption = (AirshipContraption) contraption;
         System.out.println("New airship entity");
     }
@@ -233,11 +230,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     @Override
     public void onRemovedFromWorld() {
-        subContraptions.forEach((uuid, contraptionEntity) -> {
-            contraptionEntity.getContraption().addBlocksToWorld(contraptionEntity.level, ((ControlledContraptionEntityMixin)contraptionEntity).invokeMakeStructureTransform());
-            contraptionEntity.remove();
-            serverDestroySubContraption(contraptionEntity);
-        });
         super.onRemovedFromWorld();
     }
 
@@ -418,20 +410,20 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     public AirshipRotationState getRotationState() {
         AirshipRotationState crs = new AirshipRotationState();
         crs.matrix = new Matrix3d();
-        Vector3d I = SimulatedContraptionRigidbody.rotateQuatReverse(new Vector3d(1, 0, 0), quat);
-        Vector3d J = SimulatedContraptionRigidbody.rotateQuatReverse(new Vector3d(0, 1, 0), quat);
-        Vector3d K = SimulatedContraptionRigidbody.rotateQuatReverse(new Vector3d(0, 0, 1), quat);
+        Vector3d I = MathUtils.rotateQuatReverse(new Vector3d(1, 0, 0), quat);
+        Vector3d J = MathUtils.rotateQuatReverse(new Vector3d(0, 1, 0), quat);
+        Vector3d K = MathUtils.rotateQuatReverse(new Vector3d(0, 0, 1), quat);
         ((Matrix3dExtension) crs.matrix).createaeronautics$set(I, J, K);
         crs.matrix.transpose();
         return crs;
     }
 
     public Vector3d reverseRotation(Vector3d localPos, float partialTicks) {
-        return SimulatedContraptionRigidbody.rotateQuatReverse(localPos, simulatedRigidbody.getPartialOrientation(partialTicks));
+        return MathUtils.rotateQuatReverse(localPos, simulatedRigidbody.getPartialOrientation(partialTicks));
     }
 
     public Vector3d applyRotation(Vector3d localPos, float partialTicks) {
-        return SimulatedContraptionRigidbody.rotateQuat(localPos, simulatedRigidbody.getPartialOrientation(partialTicks));
+        return MathUtils.rotateQuat(localPos, simulatedRigidbody.getPartialOrientation(partialTicks));
     }
 
     public Vector3d toGlobalVector(Vector3d localVec, float partialTicks) {
@@ -460,7 +452,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     }
 
     protected StructureTransform makeStructureTransform() {
-        BlockPos offset = new BlockPos(this.getAnchorVec().subtract(centerOfMassOffset));
+        BlockPos offset = new BlockPos(this.getAnchorVec().subtract(centerOfMassOffset)).offset(0,1,0);
         return new StructureTransform(offset, 0.0F, 0, 0.0F);
     }
 
@@ -487,7 +479,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
 
         if(player.getItemInHand(interactionHand).getItem() instanceof ExtendoGripItem){
-            simulatedRigidbody.addGlobalForce(player.getLookAngle().scale(100.0), new Vector3d(localPos.getX(), localPos.getY(), localPos.getZ()));
+            simulatedRigidbody.addGlobalForce(player.getLookAngle().scale(1000.0), new Vector3d(localPos.getX(), localPos.getY(), localPos.getZ()));
             return true;
         }
 
@@ -758,5 +750,10 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         public float getYawOffset() {
             return secondYRotation;
         }
+    }
+
+    @Override
+    public Vector3d getContactPointMotion(Vector3d globalContactPoint) {
+        return simulatedRigidbody.getVelocityAtPoint(toLocalVector(globalContactPoint,0.0f).subtract(0.5, 0.5, 0.5)).scale(0.05f);
     }
 }

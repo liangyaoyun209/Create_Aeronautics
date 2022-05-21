@@ -9,7 +9,9 @@ public class CABlockPartials {
     public static final PartialModel
     CANNON_BARREL = get("stationary_potato_cannon/barrel"),
     CANNON_BELLOW = get("stationary_potato_cannon/bellow"),
-    ENGINE_PISTON = get("stirling_engine/piston");
+    ENGINE_PISTON = get("stirling_engine/piston"),
+    GYRO_BEARING_PISTON_HEAD = get("gyroscopic_propeller_bearing/piston_head"),
+    GYRO_BEARING_PISTON_POLE = get("gyroscopic_propeller_bearing/piston_pole");
 
     private static PartialModel get(String path) {
         ResourceLocation L = new ResourceLocation(CreateAeronautics.MODID, "block/" + path);

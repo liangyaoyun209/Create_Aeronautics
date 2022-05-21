@@ -1,5 +1,5 @@
 {
-    "parent": "createaeronautics:block/propeller_bearing/block",
+    "parent": "createaeronautics:block/propeller_bearing/block_full",
     "display": {
         "gui": {
             "rotation": [ 30, 45, 0 ],

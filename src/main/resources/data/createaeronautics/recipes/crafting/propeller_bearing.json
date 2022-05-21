@@ -10,10 +10,10 @@
       "item": "create:shaft"
     },
     "P": {
-      "item": "create:andesite_alloy"
+      "tag": "minecraft:planks"
     },
     "C": {
-      "item": "create:brass_block"
+      "item": "create:brass_casing"
     },
     "T": {
       "item": "create:turntable"
