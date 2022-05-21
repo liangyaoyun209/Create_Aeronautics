@@ -152,7 +152,9 @@ public AirshipContraption contraption;
 
 
 
-
+        // I don't know the order that things in tick should be applied in, so I just put it here randomly. Move to a better spot if you like.
+        // - TrolledWoods
+        airshipAirFiller.apply(this);
 
         //updateInertia();
         updateTileEntityInteractions();
@@ -965,14 +967,14 @@ public AirshipContraption contraption;
     {
         return pos.subtract(centerOfMass);
     }
-    public class BuoyancyController
+    public static class BuoyancyController
     {
         Vector3d averagePos;
         int totalCount;
         Vector3d upVector;
         Vector3d projectedAveragePos;
         double averageSquaredMagnitudes;
-        double strengthScale=0.0;
+        public double strengthScale=0.0;
         public List<Vector3d> points;
         public BuoyancyController(double strengthScale)
         {
@@ -1027,12 +1029,12 @@ public AirshipContraption contraption;
                             .scale(1.0/averageBuoyancy);
             return new Tuple<>(upVector.scale(totalBuoyancy),averageBuoyancyPosition);
         }
-        public double apply(Quaternion rotation, Vector3d referencePos)
+        public double apply(SimulatedContraptionRigidbody body, Quaternion rotation, Vector3d referencePos)
         {
 
             Tuple<Vector3d, Vector3d> T = getForceAndPosition(rotation,referencePos);
 
-            addGlobalForce(T.getA(),T.getB());
+            body.addGlobalForce(T.getA(),T.getB());
 
             return T.getA().length();
 
