@@ -5,6 +5,7 @@ import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
 import com.eriksonn.createaeronautics.index.CAEntityTypes;
 import com.eriksonn.createaeronautics.mixins.ContraptionHolderAccessor;
 import com.eriksonn.createaeronautics.mixins.ControlledContraptionEntityMixin;
+import com.eriksonn.createaeronautics.mixins.ItemUseContextMixin;
 import com.eriksonn.createaeronautics.network.NetworkMain;
 import com.eriksonn.createaeronautics.network.packet.*;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
@@ -31,6 +32,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
@@ -41,11 +44,9 @@ import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
@@ -117,6 +118,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     @Override
     public void tickContraption() {
+        contraption.getActors().clear();
         airshipContraption = (AirshipContraption) contraption;
         simulatedRigidbody.contraption = airshipContraption;
         AirshipAssemblerTileEntity controller = getController();
@@ -491,7 +493,30 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             BlockState state = worldIn.getBlockState(dimensionPos);
 
             try {
-                state.getBlock().use(state, worldIn, dimensionPos, player, interactionHand, null);
+                BlockRayTraceResult pResult = new BlockRayTraceResult(
+                        Vector3d.atBottomCenterOf(dimensionPos), side, dimensionPos, false
+                );
+                if(state.use(worldIn, player, interactionHand, pResult).consumesAction()) return true;
+                ItemStack itemstack = player.getItemInHand(interactionHand);
+
+
+                if(true) return false;
+
+                // TODO : Fix this lmaoo
+                if (itemstack.isEmpty() || player.getCooldowns().isOnCooldown(itemstack.getItem())) return false;
+
+                ItemUseContext itemusecontext = new ItemUseContext(player, interactionHand, pResult);
+                ((ItemUseContextMixin) itemusecontext).setLevel(AirshipDimensionManager.INSTANCE.getWorld());
+                ActionResultType actionresulttype1;
+                if (Minecraft.getInstance().player.isCreative()) {
+                    int i = itemstack.getCount();
+                    actionresulttype1 = itemstack.useOn(itemusecontext);
+                    itemstack.setCount(i);
+                } else {
+                    actionresulttype1 = itemstack.useOn(itemusecontext);
+                }
+
+                return actionresulttype1.consumesAction();
             } catch (Exception e) {
                 e.printStackTrace();
             }

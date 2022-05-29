@@ -38,7 +38,17 @@ public class CAShapes {
             .erase(16,0,0,11,12,5)
             .erase(0,0,16,5,12,11)
             .erase(16,0,16,11,12,11)
-            .forDirectional();
+            .forDirectional(),
+    ANALOG_CLUTCH = shape(0,0,0,0,16,2)
+            .add(0, 0, 0, 16, 16, 2)
+            .add(16, 16, 16, 0, 0, 14)
+            .add(16, 16, 16, 14, 0, 0)
+            .add(2, 2, 2, 14, 14, 14)
+            .forAxis(),
+    OPTICAL_SENSOR = shape(0, 0, 0, 16, 6, 16)
+            .add(1, 6, 1, 14, 14, 14)
+            .add(0, 14, 0, 16, 16, 16)
+            .forDirectional(Direction.NORTH);
     private static CAShapes.Builder shape(VoxelShape shape) {
         return new CAShapes.Builder(shape);
     }
