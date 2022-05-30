@@ -150,6 +150,10 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
         if (!airshipInitialized) {
             initFakeClientWorld();
+            renderTransform = new Transform(position(), quat);
+            previousRenderTransform = renderTransform;
+            smoother.smoothedPosition = renderTransform.position;
+            smoother.smoothedOrientation = renderTransform.orientation;
         }
 
         if (level.isClientSide) {
