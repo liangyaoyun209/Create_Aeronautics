@@ -1,6 +1,6 @@
 package com.eriksonn.createaeronautics.utils;
 
-import net.minecraft.util.math.vector.Quaternion;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.util.math.vector.Vector3d;
 
 /**
@@ -9,9 +9,9 @@ import net.minecraft.util.math.vector.Vector3d;
 public class Transform {
 
     public Vector3d position;
-    public Quaternion orientation;
+    public Quaternionf orientation;
 
-    public Transform(Vector3d position, Quaternion orientation) {
+    public Transform(Vector3d position, Quaternionf orientation) {
         this.position = position;
         this.orientation = orientation;
     }

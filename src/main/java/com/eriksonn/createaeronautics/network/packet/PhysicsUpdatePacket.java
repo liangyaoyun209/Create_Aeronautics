@@ -2,26 +2,22 @@ package com.eriksonn.createaeronautics.network.packet;
 
 import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipManager;
-import com.eriksonn.createaeronautics.network.ClientPacketHandler;
 import com.eriksonn.createaeronautics.utils.MathUtils;
-import net.minecraft.nbt.CompoundNBT;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PhysicsUpdatePacket {
     public Vector3d centerOfMass, momentum, angularMomentum, angularVelocity;
-    public Quaternion orientation;
+    public Quaternionf orientation;
     public int airshipID;
 
-    public PhysicsUpdatePacket(int airshipID, Vector3d centerOfMass, Vector3d momentum, Vector3d angularMomentum, Vector3d angularVelocity, Quaternion orientation) {
+    public PhysicsUpdatePacket(int airshipID, Vector3d centerOfMass, Vector3d momentum, Vector3d angularMomentum, Vector3d angularVelocity, Quaternionf orientation) {
         this.airshipID = airshipID;
         this.centerOfMass = centerOfMass;
         this.momentum = momentum;
@@ -40,11 +36,11 @@ public class PhysicsUpdatePacket {
         return new Vector3d(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
     }
 
-    public Quaternion readQuaternion(PacketBuffer buffer) {
-        return new Quaternion(buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
+    public Quaternionf readQuaternion(PacketBuffer buffer) {
+        return new Quaternionf(buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
     }
 
-    public void writeQuaternion(PacketBuffer buffer, Quaternion quat) {
+    public void writeQuaternion(PacketBuffer buffer, Quaternionf quat) {
         buffer.writeFloat(quat.i());
         buffer.writeFloat(quat.j());
         buffer.writeFloat(quat.k());

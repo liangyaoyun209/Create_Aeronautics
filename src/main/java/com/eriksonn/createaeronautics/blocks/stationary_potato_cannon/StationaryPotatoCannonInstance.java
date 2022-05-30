@@ -1,6 +1,7 @@
 package com.eriksonn.createaeronautics.blocks.stationary_potato_cannon;
 
 import com.eriksonn.createaeronautics.index.CABlockPartials;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
 

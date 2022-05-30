@@ -1,10 +1,15 @@
 package com.eriksonn.createaeronautics.events;
 
 import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
+import com.eriksonn.createaeronautics.contraptions.AirshipManager;
+import com.eriksonn.createaeronautics.contraptions.ContraptionSmoother;
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.Transform;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
+import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.RaycastHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -19,12 +24,18 @@ import net.minecraft.util.math.vector.Matrix3f;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.gen.feature.template.Template;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.mutable.MutableObject;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Mod.EventBusSubscriber(Dist.CLIENT)
 public class RenderEvents {
 
     /**
@@ -35,7 +46,50 @@ public class RenderEvents {
         consumer.vertex(matrix, (float)vecA.x, (float)vecA.y, (float)vecA.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         consumer.vertex(matrix, (float)vecB.x, (float)vecB.y, (float)vecB.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
     }*/
+    @SubscribeEvent
+    public static void renderStartEvent(TickEvent.RenderTickEvent e)
+    {
+        float partialTicks = AnimationTickHolder.getPartialTicks();
 
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.player == null) return;
+
+        for (Map.Entry<Integer, AirshipContraptionEntity> entry : AirshipManager.INSTANCE.AllClientAirships.entrySet()) {
+            AirshipContraptionEntity airship = entry.getValue();
+
+            // if we're at the very start of a tick, no need for interpolation
+            if(partialTicks == 0.0) airship.smoothedRenderTransform = airship.previousRenderTransform;
+
+            // same for the end of the tick
+            if(partialTicks == 1.0) airship.previousRenderTransform = airship.smoothedRenderTransform;
+
+
+            Quaternionf smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation, airship.renderTransform.orientation, partialTicks);
+            Vector3d smoothiePos = ContraptionSmoother.lerp(airship.previousRenderTransform.position, airship.renderTransform.position, partialTicks);
+
+            airship.smoothedRenderTransform = new Transform(smoothiePos, smoothieRotation);
+            // entry.getValue().smoothedRenderTransform
+        }
+
+        BlockPos pos = mc.player.blockPosition();
+
+        if (!mc.player.isOnGround())
+            return;
+        if (mc.isPaused())
+            return;
+
+        List<AirshipContraptionEntity> possibleContraptions = mc.level.getEntitiesOfClass(AirshipContraptionEntity.class, mc.player.getBoundingBox().inflate(10.0));
+
+        for (AirshipContraptionEntity contraption : possibleContraptions) {
+            if(contraption.collidingEntities.containsKey(mc.player)) {
+                float speed = (float) (contraption.simulatedRigidbody.rotate(contraption.simulatedRigidbody.getAngularVelocity()).y * (180.0 / Math.PI));
+                mc.player.yRot = mc.player.yRotO + speed * partialTicks * 0.05f;
+                mc.player.yBodyRot = mc.player.yRot;
+            }
+        }
+
+
+    }
     @SubscribeEvent
     public static void renderList(RenderWorldLastEvent event) {
 

@@ -3,25 +3,18 @@ import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipContraption;
 import com.eriksonn.createaeronautics.contraptions.AirshipManager;
 import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
-import com.eriksonn.createaeronautics.mixins.ContraptionRenderDispatcherMixin;
-import com.eriksonn.createaeronautics.mixins.ContraptionRenderManagerMixin;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
-import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
-import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderInfo;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
-import com.sun.org.apache.bcel.internal.generic.FSUB;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
 import java.util.List;
-import java.util.Map;
 
 public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisplayAssemblyExceptions {
     public boolean running=false;
@@ -109,13 +102,13 @@ public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisp
                 AllSoundEvents.CONTRAPTION_DISASSEMBLE.playOnServer(this.level, this.worldPosition);
 
                 // TODO: make this not reach over sides
-                Int2ObjectMap<ContraptionRenderInfo> renderInfos = ((ContraptionRenderManagerMixin) ContraptionRenderDispatcherMixin.getWorlds().get(movedContraption.level)).getRenderInfos();
-
-                movedContraption.subContraptions.forEach((x, y) -> {
-                    for (Map.Entry<Integer, ContraptionRenderInfo> entry : renderInfos.entrySet()) {
-                        if (entry.getValue().contraption == y.getContraption()) renderInfos.remove(entry.getKey());
-                    }
-                });
+//                Int2ObjectMap<ContraptionRenderInfo> renderInfos = ((ContraptionRenderManagerMixin) ContraptionRenderDispatcherMixin.getWorlds().get(movedContraption.level)).getRenderInfos();
+//
+//                movedContraption.subContraptions.forEach((x, y) -> {
+//                    for (Map.Entry<Integer, ContraptionRenderInfo> entry : renderInfos.entrySet()) {
+//                        if (entry.getValue().contraption == y.getContraption()) renderInfos.remove(entry.getKey());
+//                    }
+//                });
             }
             //AirshipManager.INSTANCE.removePlot(plotId);
             this.movedContraption = null;
@@ -125,21 +118,22 @@ public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisp
         }
         if(this.movedContraption!=null)
         {
-time++;
-float angle=time*5.5f;
-MatrixStack[] stack = new MatrixStack[1];
-stack[0]=new MatrixStack();
-Vector3d axis = new Vector3d(1,1,1);
-axis.normalize();
-Quaternion Q = new Quaternion((float)Math.cos(angle),(float)(Math.sin(angle)*axis.x),(float)(Math.sin(angle)*axis.y),(float)(Math.sin(angle)*axis.z));
-stack[0].mulPose(Q);
+//time++;
+//float angle=time*5.5f;
+//MatrixStack[] stack = new MatrixStack[1];
+//stack[0]=new MatrixStack();
+//Vector3d axis = new Vector3d(1,1,1);
+//axis.normalize();
+//Quaternionf Q = new Quaternionf((float)Math.cos(angle),(float)(Math.sin(angle)*axis.x),(float)(Math.sin(angle)*axis.y),(float)(Math.sin(angle)*axis.z));
+//stack[0].mulPose(Q.toMojangQuaternion());
 
 //this.movedContraption.doLocalTransforms(AnimationTickHolder.getPartialTicks(),stack);
 
             //this.movedContraption.applyRotation(axis,time);
         }
 
-        this.running = this.level==AirshipDimensionManager.INSTANCE.getWorld();
+        if(!level.isClientSide)
+            this.running = this.level==AirshipDimensionManager.INSTANCE.getWorld();
 
     }
     public void lazyTick() {

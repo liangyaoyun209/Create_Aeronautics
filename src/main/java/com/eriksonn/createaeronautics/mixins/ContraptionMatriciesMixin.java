@@ -1,29 +1,14 @@
 package com.eriksonn.createaeronautics.mixins;
 
-import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
-import com.eriksonn.createaeronautics.contraptions.AirshipManager;
-import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
-import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
-import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
-import com.simibubi.create.content.contraptions.components.structureMovement.ControlledContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionMatrices;
-import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import static com.eriksonn.createaeronautics.contraptions.SubcontraptionMatrixTransformer.setupTransforms;

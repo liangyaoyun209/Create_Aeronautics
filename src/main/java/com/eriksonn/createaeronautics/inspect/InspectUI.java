@@ -5,9 +5,9 @@ import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.index.CABlocks;
 import com.eriksonn.createaeronautics.network.NetworkMain;
 import com.eriksonn.createaeronautics.network.packet.PausePhysicsPacket;
-import com.eriksonn.createaeronautics.particle.PropellerAirParticle;
 import com.eriksonn.createaeronautics.particle.PropellerAirParticleData;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.AllBlocks;
@@ -20,7 +20,6 @@ import com.simibubi.create.foundation.ponder.ui.PonderButton;
 import com.simibubi.create.foundation.render.SuperRenderTypeBuffer;
 import com.simibubi.create.foundation.utility.*;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.GameSettings;
@@ -35,7 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.gen.feature.template.Template;
@@ -102,7 +100,7 @@ public class InspectUI extends NavigatableSimiScreen {
 
     Vector3d originalPosition;
     Vector3d sectionPosition;
-    Quaternion sectionRotation = Quaternion.ONE;
+    Quaternionf sectionRotation = Quaternionf.ONE;
 
     public boolean inScenario() {
         return scenario != PhysicsScenario.NONE;
@@ -172,7 +170,7 @@ public class InspectUI extends NavigatableSimiScreen {
                 }
             }));
             widgets.add(rotateScenario = new PonderButton(scenarioStatementEndX - 20 - 20 - 8 - 8, scenarioStatementY + 6).showing(AllIcons.I_ROTATE_CCW).withCallback(() -> {
-                rigidbody.orientation.mul(new Quaternion(new Vector3f(0, 1, 0), (float) Math.PI / 2, false));
+                rigidbody.orientation.mul(new Quaternionf(new Vector3f(0, 1, 0), (float) Math.PI / 2, false));
             }));
         }
 
@@ -308,7 +306,7 @@ public class InspectUI extends NavigatableSimiScreen {
         ScreenOpener.transitionTo(InspectScenariosScreen.of(airship));
     }
 
-    public Vector3d toXYZ(Quaternion quat) {
+    public Vector3d toXYZ(Quaternionf quat) {
         float f = quat.r() * quat.r();
         float f1 = quat.i() * quat.i();
         float f2 = quat.j() * quat.j();
@@ -319,7 +317,7 @@ public class InspectUI extends NavigatableSimiScreen {
         return Math.abs(f5) > 0.999F * f4 ? new Vector3d(2.0F * (float)Math.atan2((double)quat.i(), (double)quat.r()), f6, 0.0F) : new Vector3d((float)Math.atan2((double)(2.0F * quat.j() * quat.k() + 2.0F * quat.i() * quat.r()), (double)(f - f1 - f2 + f3)), f6, (float)Math.atan2((double)(2.0F * quat.i() * quat.j() + 2.0F * quat.r() * quat.k()), (double)(f + f1 - f2 - f3)));
     }
 
-    public Vector3d toXYZDegrees(Quaternion quat) {
+    public Vector3d toXYZDegrees(Quaternionf quat) {
         Vector3d vector3f = this.toXYZ(quat);
         return new Vector3d((float)Math.toDegrees((double)vector3f.x()), (float)Math.toDegrees((double)vector3f.y()), (float)Math.toDegrees((double)vector3f.z()));
     }

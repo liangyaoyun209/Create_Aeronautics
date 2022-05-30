@@ -26,6 +26,7 @@
     "RedstoneLinkNetworkMixin",
     "RotationPropagatorMixin",
     "ServerWorldEventMixin",
+    "SUpdateTileEntityPacketMixin",
     "WorldAccessorMixin",
     "WorldEventMixin",
     "WorldRendererMixin"

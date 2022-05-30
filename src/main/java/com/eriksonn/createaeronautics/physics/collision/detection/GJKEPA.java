@@ -1,7 +1,7 @@
 package com.eriksonn.createaeronautics.physics.collision.detection;
 
 import com.eriksonn.createaeronautics.physics.collision.shape.ICollisionShape;
-import net.minecraft.util.math.vector.Quaternion;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.ArrayList;
@@ -578,19 +578,19 @@ public class GJKEPA {
         return new EPANormalResult(normals, minimumDistanceTriangle, minimumDistance);
     }
 
-    public static Vector3d rotateQuaternion (Vector3d vector, Quaternion rotation)
+    public static Vector3d rotateQuaternion (Vector3d vector, Quaternionf rotation)
     {
-        Quaternion vectorAsQuaternion = new Quaternion ((float)vector.x, (float)vector.y, (float)vector.z, 0.0f);
-        Quaternion mut = rotation.copy();
+        Quaternionf vectorAsQuaternion = new Quaternionf((float)vector.x, (float)vector.y, (float)vector.z, 0.0f);
+        Quaternionf mut = rotation.copy();
         vectorAsQuaternion.mul(mut) ;
         mut.conj();
         mut.mul(vectorAsQuaternion);
         return new Vector3d(mut.i(), mut.j(), mut.k());
     }
 
-    public static Vector3d rotateQuaternionReverse(Vector3d vector, Quaternion Q) {
-        Quaternion vectorAsQuaternion = new Quaternion((float)vector.x, (float)vector.y, (float)vector.z, 0.0f) ;
-        Quaternion mut = Q.copy();
+    public static Vector3d rotateQuaternionReverse(Vector3d vector, Quaternionf Q) {
+        Quaternionf vectorAsQuaternion = new Quaternionf((float)vector.x, (float)vector.y, (float)vector.z, 0.0f) ;
+        Quaternionf mut = Q.copy();
         mut.conj();
         vectorAsQuaternion.mul(mut);
         mut.conj();

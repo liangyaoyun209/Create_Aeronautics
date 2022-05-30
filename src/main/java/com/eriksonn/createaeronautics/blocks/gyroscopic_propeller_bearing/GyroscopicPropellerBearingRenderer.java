@@ -1,7 +1,7 @@
 package com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing;
 
 import com.eriksonn.createaeronautics.index.CABlockPartials;
-import com.eriksonn.createaeronautics.physics.PhysicsUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class GyroscopicPropellerBearingRenderer  extends KineticTileEntityRenderer {
@@ -40,10 +39,10 @@ public class GyroscopicPropellerBearingRenderer  extends KineticTileEntityRender
                 .getValue(BlockStateProperties.FACING);
         Vector3d normal = new Vector3d(facing.getStepX(),facing.getStepY(),facing.getStepZ());
         GyroscopicPropellerBearingTileEntity gyroBearing = (GyroscopicPropellerBearingTileEntity)te;
-        Quaternion tiltQuat = gyroBearing.tiltQuat;
-        Quaternion Q = tiltQuat.copy();
+        Quaternionf tiltQuat = new Quaternionf(gyroBearing.tiltQuat);
+        Quaternionf Q = tiltQuat.copy();
         Q.conj();
-        Q.mul(new Quaternion((float)normal.x,(float)normal.y,(float)normal.z,0f));
+        Q.mul(new Quaternionf((float)normal.x,(float)normal.y,(float)normal.z,0f));
         Q.mul(tiltQuat);
         Vector3d contraptionNormal = new Vector3d(Q.i(),Q.j(),Q.k());
 
@@ -51,7 +50,7 @@ public class GyroscopicPropellerBearingRenderer  extends KineticTileEntityRender
         SuperByteBuffer superBuffer = PartialBufferer.get(top, te.getBlockState());
 
         superBuffer.translate(normal.scale(4/16f));
-        superBuffer.rotateCentered(tiltQuat);
+        superBuffer.rotateCentered(tiltQuat.toMojangQuaternion());
         superBuffer.translate(normal.scale(-4/16f));
 
         float interpolatedAngle = bearingTe.getInterpolatedAngle(partialTicks - 1);
@@ -91,7 +90,7 @@ public class GyroscopicPropellerBearingRenderer  extends KineticTileEntityRender
             poleBuffer.translate(translatedPos);
             poleBuffer.translate(0.5f,0.5f,0.5f);
 
-            headBuffer.rotate(tiltQuat);
+            headBuffer.rotate(tiltQuat.toMojangQuaternion());
             int j =i;
             if(facing==Direction.DOWN)
             {
