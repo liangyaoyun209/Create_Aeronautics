@@ -273,7 +273,9 @@ public class AirshipAirFiller {
 
     public void apply(SimulatedContraptionRigidbody contraption) {
         for (int i = 0; i < stale_air_sections.length; i++) {
-            stale_air_sections[i].controller.apply(contraption, contraption.orientation, contraption.adapter.position());
+            if (stale_air_sections[i].controller.strengthScale >= 0.001) {
+                stale_air_sections[i].controller.apply(contraption, contraption.orientation, contraption.adapter.position());
+            }
         }
     }
 
