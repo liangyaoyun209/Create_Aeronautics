@@ -3,12 +3,17 @@ import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipContraption;
 import com.eriksonn.createaeronautics.contraptions.AirshipManager;
 import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
+import com.eriksonn.createaeronautics.mixins.ContraptionRenderDispatcherMixin;
+import com.eriksonn.createaeronautics.mixins.ContraptionRenderManagerMixin;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
+import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
+import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderInfo;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.sun.org.apache.bcel.internal.generic.FSUB;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -16,6 +21,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
 import java.util.List;
+import java.util.Map;
 
 public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisplayAssemblyExceptions {
     public boolean running=false;
@@ -101,6 +107,15 @@ public class AirshipAssemblerTileEntity extends SmartTileEntity implements IDisp
                 this.movedContraption.disassemble();
 
                 AllSoundEvents.CONTRAPTION_DISASSEMBLE.playOnServer(this.level, this.worldPosition);
+
+                // TODO: make this not reach over sides
+                Int2ObjectMap<ContraptionRenderInfo> renderInfos = ((ContraptionRenderManagerMixin) ContraptionRenderDispatcherMixin.getWorlds().get(movedContraption.level)).getRenderInfos();
+
+                movedContraption.subContraptions.forEach((x, y) -> {
+                    for (Map.Entry<Integer, ContraptionRenderInfo> entry : renderInfos.entrySet()) {
+                        if (entry.getValue().contraption == y.getContraption()) renderInfos.remove(entry.getKey());
+                    }
+                });
             }
             //AirshipManager.INSTANCE.removePlot(plotId);
             this.movedContraption = null;
@@ -154,7 +169,11 @@ stack[0].mulPose(Q);
     public boolean dissasembleNextTick = false;
     public void disassemble() {
         if (this.running || this.movedContraption != null) {
+
+
+
             movedContraption.subContraptions.forEach((x, y) -> {
+
                 y.disassemble();
                 y.remove();
             });

@@ -56,15 +56,15 @@ import static com.eriksonn.createaeronautics.physics.PhysicsUtils.getAirPressure
 public class SimulatedContraptionRigidbody extends AbstractContraptionRigidbody {
 //    AirshipContraptionEntity entity;
 public AirshipContraption contraption;
-    public Quaternion orientation;
+    public Quaternion orientation = Quaternion.ONE;
     public Vector3d momentum=Vector3d.ZERO;
 
-    Vector3d centerOfMass=Vector3d.ZERO;
+    public Vector3d centerOfMass=Vector3d.ZERO;
     double[][] inertiaTensor=new double[3][3];
     double mass;
 
     public Vector3d angularMomentum=Vector3d.ZERO;
-    Vector3d angularVelocity=Vector3d.ZERO;
+    public Vector3d angularVelocity=Vector3d.ZERO;
     public Quaternion principalRotation;
     public double[] principalInertia =new double[3];
     Vector3d localForce =Vector3d.ZERO;
@@ -72,7 +72,7 @@ public AirshipContraption contraption;
     Vector3d localTorque =Vector3d.ZERO;
     Vector3d globalTorque =Vector3d.ZERO;
     public Vector3d globalVelocity=Vector3d.ZERO;
-    Vector3d localVelocity=Vector3d.ZERO;
+    public Vector3d localVelocity=Vector3d.ZERO;
     double totalAccumulatedBuoyancy =0.0;
 
     //BuoyancyController levititeBuoyancyController=new BuoyancyController(6.0);

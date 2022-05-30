@@ -35,6 +35,9 @@ public class NetworkMain {
         CHANNEL.registerMessage(packetID++, PausePhysicsPacket.class, PausePhysicsPacket::encode, PausePhysicsPacket::new, PausePhysicsPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(packetID++, AirshipBEUpdatePacket.class, AirshipBEUpdatePacket::encode, AirshipBEUpdatePacket::new, AirshipBEUpdatePacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(packetID++, InspectAirshipPacket.class, InspectAirshipPacket::encode, InspectAirshipPacket::new, InspectAirshipPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(packetID++, PhysicsUpdatePacket.class, PhysicsUpdatePacket::encode, PhysicsUpdatePacket::new, PhysicsUpdatePacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+
     }
 
     public static <T> void sendToServer(T t) {

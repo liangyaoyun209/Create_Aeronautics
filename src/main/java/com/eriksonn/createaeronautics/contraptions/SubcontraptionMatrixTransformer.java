@@ -1,6 +1,7 @@
 package com.eriksonn.createaeronautics.contraptions;
 
 import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
+import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
@@ -20,7 +21,7 @@ public class SubcontraptionMatrixTransformer {
             AirshipContraptionEntity airshipEntity = AirshipManager.INSTANCE.AllClientAirships.get(plotId);
             if(airshipEntity!=null) {
                 BlockPos clientWorldOffset = AirshipManager.getPlotPosFromId(plotId);
-                Vector3d airshipPosition = airshipEntity.getPartialPosition(AnimationTickHolder.getPartialTicks());
+                Vector3d airshipPosition = airshipEntity.smoothedRenderTransform.position;
 
 
                 Vector3d rotationOffset = VecHelper.getCenterOf(BlockPos.ZERO);
@@ -33,7 +34,7 @@ public class SubcontraptionMatrixTransformer {
 
                 model.translate(-localPosition.x, -localPosition.y, -localPosition.z);
 
-                Vector3d centerOfMassOffset = airshipEntity.applyRotation(airshipEntity.centerOfMassOffset, AnimationTickHolder.getPartialTicks());
+                Vector3d centerOfMassOffset = MathUtils.rotateQuat(airshipEntity.centerOfMassOffset, airshipEntity.quat);
                 model.translate(-centerOfMassOffset.x, -centerOfMassOffset.y, -centerOfMassOffset.z);
 
 
@@ -43,8 +44,6 @@ public class SubcontraptionMatrixTransformer {
                 Quaternion Q = airshipEntity.quat.copy();
                 Q.conj();
                 model.mulPose(Q);
-
-                Vector3d postRotationOffset = airshipEntity.applyRotation(rotationOffset, AnimationTickHolder.getPartialTicks());
                 model.translate(-rotationOffset.x, -rotationOffset.y, -rotationOffset.z);
 //                model.translate(-postRotationOffset.x, -postRotationOffset.y, -postRotationOffset.z);
 //                model.translate(rotat.x, postRotationOffset.y, postRotationOffset.z);

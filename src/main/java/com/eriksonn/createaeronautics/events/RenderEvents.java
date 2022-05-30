@@ -1,6 +1,7 @@
 package com.eriksonn.createaeronautics.events;
 
 import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
+import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
@@ -109,9 +110,17 @@ public class RenderEvents {
 
             // The points of the triangle
             Vector3d vecA = new Vector3d(minX, minY, minZ).add(new Vector3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
-            vecA = airship.toGlobalVector(vecA, partialTicks);
+
+            vecA = vecA.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
+            vecA = MathUtils.rotateQuat(vecA, airship.quat);
+            vecA  = vecA.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
+
             Vector3d vecB = new Vector3d(maxX, maxY, maxZ).add(new Vector3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
-            vecB = airship.toGlobalVector(vecB, partialTicks);
+
+            vecB = vecB.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
+            vecB = MathUtils.rotateQuat(vecB, airship.quat);
+            vecB  = vecB.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
+
             int r = 0, g = 0, b = 0, a = (int) (0.4 * 255.0);
 
             double xDiff = (maxX - minX);
