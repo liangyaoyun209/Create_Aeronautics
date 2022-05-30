@@ -1,15 +1,13 @@
 package com.eriksonn.createaeronautics.contraptions;
 
-import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.ControlledContraptionEntity;
-import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class SubcontraptionMatrixTransformer {
@@ -41,9 +39,9 @@ public class SubcontraptionMatrixTransformer {
                 model.translate(rotationOffset.x, rotationOffset.y, rotationOffset.z);
 
                 // rotate
-                Quaternion Q = airshipEntity.quat.copy();
+                Quaternionf Q = airshipEntity.quat.copy();
                 Q.conj();
-                model.mulPose(Q);
+                model.mulPose(Q.toMojangQuaternion());
                 model.translate(-rotationOffset.x, -rotationOffset.y, -rotationOffset.z);
 //                model.translate(-postRotationOffset.x, -postRotationOffset.y, -postRotationOffset.z);
 //                model.translate(rotat.x, postRotationOffset.y, postRotationOffset.z);

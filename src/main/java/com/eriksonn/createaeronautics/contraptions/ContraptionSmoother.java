@@ -1,6 +1,6 @@
 package com.eriksonn.createaeronautics.contraptions;
 
-import net.minecraft.util.math.vector.Quaternion;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.math.BigDecimal;
@@ -23,12 +23,12 @@ public class ContraptionSmoother {
     /**
      * The latest orientation of the airship on the current tick
      */
-    public Quaternion latestOrientation;
+    public Quaternionf latestOrientation;
 
     /**
      * The current smoothed orientation
      */
-    public Quaternion smoothedOrientation;
+    public Quaternionf smoothedOrientation;
 
     /**
      * The current smoothed position
@@ -157,7 +157,7 @@ public class ContraptionSmoother {
         }
     }
 
-    public static Quaternion slerp(Quaternion current, Quaternion target, double alpha) {
+    public static Quaternionf slerp(Quaternionf current, Quaternionf target, double alpha) {
         double cosom = fma(current.i(), target.i(), fma(current.j(), target.j(), fma(current.k(), target.k(), current.r() * target.r())));
         double absCosom = Math.abs(cosom);
         double scale0, scale1;
@@ -176,7 +176,7 @@ public class ContraptionSmoother {
         double y = fma(scale0, current.j(), scale1 * target.j());
         double z = fma(scale0, current.k(), scale1 * target.k());
         double w = fma(scale0, current.r(), scale1 * target.r());
-        return new Quaternion((float) x, (float) y, (float) z, (float) w);
+        return new Quaternionf((float) x, (float) y, (float) z, (float) w);
     }
 
 

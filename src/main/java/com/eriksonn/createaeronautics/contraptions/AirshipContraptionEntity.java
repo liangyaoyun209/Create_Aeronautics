@@ -4,8 +4,8 @@ import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerT
 import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
 import com.eriksonn.createaeronautics.index.CAEntityTypes;
 import com.eriksonn.createaeronautics.mixins.ContraptionHolderAccessor;
-import com.eriksonn.createaeronautics.mixins.ControlledContraptionEntityMixin;
 import com.eriksonn.createaeronautics.mixins.ItemUseContextMixin;
+import com.eriksonn.createaeronautics.mixins.SUpdateTileEntityPacketMixin;
 import com.eriksonn.createaeronautics.network.NetworkMain;
 import com.eriksonn.createaeronautics.network.packet.*;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
@@ -14,12 +14,11 @@ import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
 import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.eriksonn.createaeronautics.utils.Matrix3dExtension;
 import com.eriksonn.createaeronautics.utils.Transform;
-import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.AllMovementBehaviours;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
-import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripItem;
 import com.simibubi.create.foundation.collision.Matrix3d;
 import com.simibubi.create.foundation.utility.AngleHelper;
@@ -27,8 +26,6 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,22 +34,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.server.ServerWorld;
@@ -60,23 +49,23 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
 
 public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
+    public ClientAirshipEntityManager helper = level.isClientSide ? new ClientAirshipEntityManager(this) : null;
     float time = 0;
 
     public boolean playPhysics = true;
-    public Quaternion quat = Quaternion.ONE;
+    public Quaternionf quat = Quaternionf.ONE;
     public Vector3d velocity;
     public AirshipContraption airshipContraption;
     public int plotId = 0;
     public SimulatedContraptionRigidbody simulatedRigidbody;
 
-    public Transform renderTransform = new Transform(Vector3d.ZERO, Quaternion.ONE);
+    public Transform renderTransform = new Transform(Vector3d.ZERO, Quaternionf.ONE);
     public Transform previousRenderTransform = renderTransform;
     public Transform smoothedRenderTransform = renderTransform;
 
@@ -109,7 +98,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     // Whether or not this contraption has been airshipInitialized
     public boolean airshipInitialized = false;
 
-    public boolean invalid = false;
     public boolean syncNextTick = false;
 
     HashSet<BlockPos> blocksToUpdate = new HashSet<>();
@@ -149,7 +137,8 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         }
 
         if (!airshipInitialized) {
-            initFakeClientWorld();
+            if(helper != null) helper.initFakeClientWorld();
+
             renderTransform = new Transform(position(), quat);
             previousRenderTransform = renderTransform;
             smoother.smoothedPosition = renderTransform.position;
@@ -157,20 +146,8 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         }
 
         if (level.isClientSide) {
-            profiler.startTick();
-            fakeClientWorld.tick(() -> true);
-
-            for (ControlledContraptionEntity contraptionEntity : subContraptions.values()) {
-                contraptionEntity.tick();
-            }
-
-            fakeClientWorld.tickBlockEntities();
-            profiler.endTick();
-
-            if (invalid) {
-                ContraptionRenderDispatcher.invalidate(airshipContraption);
-                invalid = false;
-            }
+            if(helper != null)
+                helper.tick();
         }
 
         if (!airshipInitialized) {
@@ -215,7 +192,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     }
 
 
-    public FakeAirshipClientWorld fakeClientWorld;
 
     public void serverUpdate() {
         // stcDestroySubContraption and remove from the hashmap all subcontraptions that arent alive
@@ -257,28 +233,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         notifyClients(new AirshipUpdateSubcontraptionPacket(plotId, subContraption.serializeNBT(), subContraption.getUUID()));
     }
 
-    public void initFakeClientWorld() {
-        if (level.isClientSide) {
-            profiler = new Profiler(() -> 0, () -> 0, false);
-            RegistryKey<World> dimension = level.dimension();
-            DimensionType dimensionType = level.dimensionType();
-            ClientWorld.ClientWorldInfo clientWorldInfo = new ClientWorld.ClientWorldInfo(Difficulty.PEACEFUL, false, true);
-            fakeClientWorld = new FakeAirshipClientWorld(
-                    this,
-                    Minecraft.getInstance().getConnection(),
-                    clientWorldInfo,
-                    dimension,
-                    dimensionType,
-                    0, () -> profiler,
-                    null, false, 0
-            );
-            AirshipManager.INSTANCE.AllClientAirships.put(plotId, this);
 
-            airshipContraption.maybeInstancedTileEntities.clear();
-            airshipContraption.specialRenderedTileEntities.clear();
-            airshipContraption.presentTileEntities.clear();
-        }
-    }
 
     public void syncPacket() {
         if (!level.isClientSide) {
@@ -344,8 +299,9 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
         AirshipContraptionBlockUpdatePacket packet = new AirshipContraptionBlockUpdatePacket(thisBlockNBT);
         notifyClients(packet);
-        if(updatePacket != null) {
-            notifyClients(new AirshipBEUpdatePacket(updatePacket.getType(), updatePacket.getTag(), new BlockPos(pos.getX() - plotPos.getX(), pos.getY(),pos.getZ() - plotPos.getZ()), plotId));
+        SUpdateTileEntityPacketMixin mixinUpdatePacket = (SUpdateTileEntityPacketMixin) updatePacket;
+        if(mixinUpdatePacket != null) {
+            notifyClients(new AirshipBEUpdatePacket(mixinUpdatePacket.getType(), mixinUpdatePacket.getTag(), new BlockPos(pos.getX() - plotPos.getX(), pos.getY(),pos.getZ() - plotPos.getZ()), plotId));
         }
 
         airshipContraption.setBlockState(localPos, state, blockEntity);
@@ -358,6 +314,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     }
 
     public AirshipAssemblerTileEntity getController() {
+        if(level.isClientSide) return null;
         BlockPos controllerPos = getPlotPos();
         World w = AirshipDimensionManager.INSTANCE.getWorld();
         if (!w.isLoaded(controllerPos))
@@ -490,16 +447,16 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
                 ItemUseContext itemusecontext = new ItemUseContext(player, interactionHand, pResult);
                 ((ItemUseContextMixin) itemusecontext).setLevel(AirshipDimensionManager.INSTANCE.getWorld());
-                ActionResultType actionresulttype1;
-                if (Minecraft.getInstance().player.isCreative()) {
-                    int i = itemstack.getCount();
-                    actionresulttype1 = itemstack.useOn(itemusecontext);
-                    itemstack.setCount(i);
-                } else {
-                    actionresulttype1 = itemstack.useOn(itemusecontext);
-                }
+                ActionResultType actionresulttype1 = null;
+//                if (Minecraft.getInstance().player.isCreative()) {
+//                    int i = itemstack.getCount();
+//                    actionresulttype1 = itemstack.useOn(itemusecontext);
+//                    itemstack.setCount(i);
+//                } else {
+//                    actionresulttype1 = itemstack.useOn(itemusecontext);
+//                }
 
-                return actionresulttype1.consumesAction();
+//                return actionresulttype1.consumesAction();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -541,7 +498,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         int var7 = matrixStacks.length;
 
         int var8;
-        Quaternion Q = smoothedRenderTransform.orientation;
+        Quaternionf Q = smoothedRenderTransform.orientation;
         Vector3d partialPosition = getPartialPosition(partialTicks);
         Vector3d position = position();
         Q.conj();
@@ -552,7 +509,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             stack.translate(position.x - partialPosition.x, position.y - partialPosition.y, position.z - partialPosition.z);
             stack.translate(smoothedRenderTransform.position.x, smoothedRenderTransform.position.y, smoothedRenderTransform.position.z);
 
-            stack.mulPose(Q);
+            stack.mulPose(Q.toMojangQuaternion());
             stack.translate(-centerOfMassOffset.x, -centerOfMassOffset.y, -centerOfMassOffset.z);
             stack.translate(-0.5, -0.5, -0.5);
 
@@ -573,7 +530,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     }
 
-    Profiler profiler;
 
     public void addTileData(TileEntity te, BlockPos pos, BlockState state) {
         Block block = state.getBlock();
@@ -608,41 +564,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         }
     }
 
-    public void handle(AirshipContraptionBlockUpdateInfo info) {
-        fakeClientWorld.setBlock(
-                info.pos,
-                info.state,
-                1
-        );
-
-        if (info.tileEntityNBT != null) {
-            TileEntity existingBE = fakeClientWorld.getBlockEntity(info.pos);
-            if(existingBE != null) {
-                //existingBE.setLevelAndPosition(fakeClientWorld, info.pos);
-//                if(existingBE instanceof SmartTileEntity) {
-//                    ((SmartTileEntity) existingBE).readClientUpdate(info.state, info.tileEntityNBT);
-//                } else {
-//                existingBE.getUpdatePacket().handleUpdateTag(info.state, info.tileEntityNBT);
-//                }
-
-//                fakeClientWorld.setBlockEntity(info.pos, existingBE);
-                addTileData(existingBE, info.pos.offset(0, -getPlotPos().getY(), 0), info.state);
-            } else {
-                TileEntityType<?> type = ForgeRegistries.TILE_ENTITIES.getValue(new ResourceLocation(info.tileEntityNBT.getString("id")));
-                if (type == null) return;
-                TileEntity te = type.create();
-                if (te == null) return;
-
-                te.setLevelAndPosition(fakeClientWorld, info.pos);
-                te.handleUpdateTag(info.state, info.tileEntityNBT);
-                te.load(info.state, info.tileEntityNBT);
-
-                fakeClientWorld.setBlockEntity(info.pos, te);
-                addTileData(te, info.pos.offset(0, -getPlotPos().getY(), 0), info.state);
-            }
-        }
-    }
-
     public void handleControllingSubcontraption(TileEntity be, BlockPos pos) {
 
         if (!(be instanceof IControlContraption)) return;
@@ -666,58 +587,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
     private void stcSubContraptionAddition(ControlledContraptionEntity contraptionEntity, BlockPos pos, UUID uuid) {
         notifyClients(new AirshipAddSubcontraptionPacket(plotId, contraptionEntity.serializeNBT(), pos, uuid));
-    }
-
-    public void addSubcontraptionClient(CompoundNBT nbt, UUID uuid, BlockPos pos) {
-        BlockPos plotPos = getPlotPos();
-
-        CompoundNBT controllerTag = nbt.getCompound("Controller");
-        controllerTag.put("X", DoubleNBT.valueOf(controllerTag.getDouble("X") - plotPos.getX()));
-        controllerTag.put("Z", DoubleNBT.valueOf(controllerTag.getDouble("Z") - plotPos.getZ()));
-
-        Entity entity = EntityType.create(nbt, fakeClientWorld).orElse(null);
-        if (entity == null) return;
-
-        ControlledContraptionEntity contraptionEntity = (ControlledContraptionEntity) entity;
-
-        contraptionEntity.move(-plotPos.getX(), 0, -plotPos.getZ());
-        ContraptionHandler.addSpawnedContraptionsToCollisionList(contraptionEntity, level);
-
-        fakeClientWorld.addFreshEntity(contraptionEntity);
-        subContraptions.put(uuid, contraptionEntity);
-        simulatedRigidbody.addSubContraption(uuid, contraptionEntity);
-    }
-
-    public void updateSubcontraptionClient(UUID uuid, CompoundNBT nbt) {
-        ControlledContraptionEntity contraptionEntity = subContraptions.get(uuid);
-        if (contraptionEntity == null) {
-            addSubcontraptionClient(nbt, uuid, null);
-            contraptionEntity = subContraptions.get(uuid);
-        }
-
-        BlockPos plotPos = getPlotPos();
-        ListNBT posList = nbt.getList("Pos", Constants.NBT.TAG_DOUBLE);
-        posList.set(0, DoubleNBT.valueOf(posList.getDouble(0) - plotPos.getX()));
-        posList.set(2, DoubleNBT.valueOf(posList.getDouble(2) - plotPos.getZ()));
-
-        CompoundNBT controllerTag = nbt.getCompound("Controller");
-        controllerTag.put("X", DoubleNBT.valueOf(controllerTag.getDouble("X") - plotPos.getX()));
-        controllerTag.put("Z", DoubleNBT.valueOf(controllerTag.getDouble("Z") - plotPos.getZ()));
-
-        contraptionEntity.deserializeNBT(nbt);
-    }
-
-    public void destroySubcontraptionClient(UUID uuid) {
-        ControlledContraptionEntity contraptionEntity = subContraptions.get(uuid);
-        if (contraptionEntity == null) return;
-
-        StructureTransform transform = ((ControlledContraptionEntityMixin) contraptionEntity).invokeMakeStructureTransform();
-
-//        contraptionEntity.disassemble();
-        contraptionEntity.remove();
-        contraptionEntity.getContraption().addBlocksToWorld(fakeClientWorld, transform);
-        subContraptions.remove(uuid);
-        simulatedRigidbody.removeSubContraption(uuid);
     }
 
     public Vector3d getPartialPosition(float partialTicks) {

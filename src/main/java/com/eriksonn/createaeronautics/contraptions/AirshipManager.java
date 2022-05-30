@@ -1,53 +1,32 @@
 package com.eriksonn.createaeronautics.contraptions;
 
-import appeng.me.helpers.GenericInterestManager;
 import com.eriksonn.createaeronautics.CreateAeronautics;
 import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
-import com.eriksonn.createaeronautics.mixins.ContraptionHolderAccessor;
-import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
-import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
-import com.eriksonn.createaeronautics.utils.Transform;
-import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllMovementBehaviours;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.simibubi.create.content.contraptions.components.structureMovement.*;
-import com.simibubi.create.content.contraptions.components.structureMovement.bearing.MechanicalBearingTileEntity;
-import com.simibubi.create.content.contraptions.components.structureMovement.bearing.SailBlock;
-import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
-import com.simibubi.create.content.contraptions.components.turntable.TurntableTileEntity;
-import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.IWaterLoggable;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.DebugPacketSender;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
-import org.apache.logging.log4j.core.jmx.Server;
 
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class AirshipManager {
@@ -182,11 +161,9 @@ public class AirshipManager {
     public AirshipOrientedInfo getInfo(World world, BlockPos pos) {
 
         Vector3d vecPos = new Vector3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, 0.5, 0.5);
-        if(world instanceof FakeAirshipClientWorld) {
-            FakeAirshipClientWorld fakeWorld = (FakeAirshipClientWorld) world;
-            AirshipContraptionEntity airship = fakeWorld.airship;
-
-            return new AirshipOrientedInfo(airship,airship.toGlobalVector(vecPos.subtract(0, airship.getPlotPos().getY(), 0), 0f), airship.quat, airship.level, true);
+        AirshipContraptionEntity airshipFromWorld = ClientAirshipEntityManager.airshipFromWorld(world);
+        if(airshipFromWorld != null) {
+            return new AirshipOrientedInfo(airshipFromWorld,airshipFromWorld.toGlobalVector(vecPos.subtract(0, airshipFromWorld.getPlotPos().getY(), 0), 0f), airshipFromWorld.quat, airshipFromWorld.level, true);
         } else if (world == AirshipDimensionManager.INSTANCE.getWorld()) {
             int airshipID = getIdFromPlotPos(pos);
 
@@ -195,13 +172,9 @@ public class AirshipManager {
             BlockPos plotpos = getPlotPosFromId(airshipID);
             return new AirshipOrientedInfo(airship,airship.toGlobalVector(vecPos.subtract(plotpos.getX(), plotpos.getY(), plotpos.getZ()), 0f), airship.quat, airship.level, true);
         } else {
-            return new AirshipOrientedInfo(null,vecPos, Quaternion.ONE.copy(), world, false);
+            return new AirshipOrientedInfo(null,vecPos, Quaternionf.ONE.copy(), world, false);
         }
 
-    }
-    @OnlyIn(Dist.CLIENT)
-    protected void invalidate(Contraption contraption) {
-        ContraptionRenderDispatcher.invalidate(contraption);
     }
     // TODO: fix all of this
     static final int PlotWidth=128;
@@ -229,60 +202,17 @@ public class AirshipManager {
                 INSTANCE.tick();
             }
         }
-        @SubscribeEvent
-        public static void renderStartEvent(TickEvent.RenderTickEvent e)
-        {
-            float partialTicks = AnimationTickHolder.getPartialTicks();
 
-            Minecraft mc = Minecraft.getInstance();
-            if(mc.player == null) return;
-
-            for (Map.Entry<Integer, AirshipContraptionEntity> entry : AirshipManager.INSTANCE.AllClientAirships.entrySet()) {
-                AirshipContraptionEntity airship = entry.getValue();
-
-                // if we're at the very start of a tick, no need for interpolation
-                if(partialTicks == 0.0) airship.smoothedRenderTransform = airship.previousRenderTransform;
-
-                // same for the end of the tick
-                if(partialTicks == 1.0) airship.previousRenderTransform = airship.smoothedRenderTransform;
-
-
-                Quaternion smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation, airship.renderTransform.orientation, partialTicks);
-                Vector3d smoothiePos = ContraptionSmoother.lerp(airship.previousRenderTransform.position, airship.renderTransform.position, partialTicks);
-
-                airship.smoothedRenderTransform = new Transform(smoothiePos, smoothieRotation);
-                // entry.getValue().smoothedRenderTransform
-            }
-
-            BlockPos pos = mc.player.blockPosition();
-
-            if (!mc.player.isOnGround())
-                return;
-            if (mc.isPaused())
-                return;
-
-            List<AirshipContraptionEntity> possibleContraptions = mc.level.getEntitiesOfClass(AirshipContraptionEntity.class, mc.player.getBoundingBox().inflate(10.0));
-
-            for (AirshipContraptionEntity contraption : possibleContraptions) {
-                if(contraption.collidingEntities.containsKey(mc.player)) {
-                    float speed = (float) (contraption.simulatedRigidbody.rotate(contraption.simulatedRigidbody.getAngularVelocity()).y * (180.0 / Math.PI));
-                    mc.player.yRot = mc.player.yRotO + speed * partialTicks * 0.05f;
-                    mc.player.yBodyRot = mc.player.yRot;
-                }
-            }
-
-
-        }
     }
     public class AirshipOrientedInfo {
         public AirshipContraptionEntity airship;
         public Vector3d position;
-        public Quaternion orientation;
+        public Quaternionf orientation;
         public World level;
         public boolean onAirship;
 
 
-        public AirshipOrientedInfo(AirshipContraptionEntity airship,Vector3d vector3d, Quaternion orientation, World world, boolean onAirship) {
+        public AirshipOrientedInfo(AirshipContraptionEntity airship, Vector3d vector3d, Quaternionf orientation, World world, boolean onAirship) {
             this.airship = airship;
             this.position = vector3d;
             this.orientation = orientation;

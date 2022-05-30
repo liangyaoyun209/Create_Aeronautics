@@ -2,6 +2,7 @@ package com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing;
 
 import com.eriksonn.createaeronautics.index.CAEntityTypes;
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
@@ -11,14 +12,13 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GyroscopicControlledContraptionEntity extends ControlledContraptionEntity{
-    Quaternion tiltQuat=Quaternion.ONE;
+    Quaternionf tiltQuat= Quaternionf.ONE;
     Direction direction=Direction.UP;
     public GyroscopicControlledContraptionEntity(EntityType<?> type, World world) {
         super(type, world);
@@ -58,7 +58,7 @@ public class GyroscopicControlledContraptionEntity extends ControlledContraption
                     .nudge(getId())
                     .centre()
                     .translate(normal.scale(-1))
-                    .multiply(tiltQuat)
+                    .multiply(tiltQuat.toMojangQuaternion())
                     .translate(normal)
                     .rotate(angle, axis)
                     .unCentre();

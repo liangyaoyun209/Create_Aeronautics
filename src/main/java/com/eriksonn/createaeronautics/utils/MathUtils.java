@@ -1,6 +1,6 @@
 package com.eriksonn.createaeronautics.utils;
 
-import net.minecraft.util.math.vector.Quaternion;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
@@ -12,10 +12,10 @@ public class MathUtils {
      * @param Q The quaternion to rotate by
      * @return The rotated vector
      */
-    public static Vector3d rotateQuat(Vector3d V, Quaternion Q)
+    public static Vector3d rotateQuat(Vector3d V, Quaternionf Q)
     {
-        Quaternion q=new Quaternion((float)V.x,(float)V.y,(float)V.z,0.0f);
-        Quaternion Q2 = Q.copy();
+        Quaternionf q=new Quaternionf((float)V.x,(float)V.y,(float)V.z,0.0f);
+        Quaternionf Q2 = Q.copy();
         q.mul(Q2);
         Q2.conj();
         Q2.mul(q);
@@ -28,10 +28,10 @@ public class MathUtils {
      * @param Q The quaternion to rotate by
      * @return The rotated vector
      */
-    public static Vector3d rotateQuatReverse(Vector3d V, Quaternion Q)
+    public static Vector3d rotateQuatReverse(Vector3d V, Quaternionf Q)
     {
-        Quaternion q=new Quaternion((float)V.x,(float)V.y,(float)V.z,0.0f);
-        Quaternion Q2 = Q.copy();
+        Quaternionf q=new Quaternionf((float)V.x,(float)V.y,(float)V.z,0.0f);
+        Quaternionf Q2 = Q.copy();
         Q2.conj();
         q.mul(Q2);
         Q2.conj();
@@ -70,10 +70,10 @@ public class MathUtils {
      * @param end The end vector the rotation should end at
      * @return A rotation quaternion from vector start to end
      */
-    public static Quaternion getQuaternionFromVectorRotation(Vector3d start, Vector3d end)
+    public static Quaternionf getQuaternionFromVectorRotation(Vector3d start, Vector3d end)
     {
         Vector3f cross = new Vector3f(start.cross(end));
-        Quaternion Q = new Quaternion(cross.x(),cross.y(),cross.z(),1.0f+(float)start.dot(end));
+        Quaternionf Q = new Quaternionf(cross.x(),cross.y(),cross.z(),1.0f+(float)start.dot(end));
         Q.normalize();
         return Q;
     }
