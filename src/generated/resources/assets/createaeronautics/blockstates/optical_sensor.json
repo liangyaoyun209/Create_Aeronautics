@@ -1,0 +1,50 @@
+{
+  "variants": {
+    "facing=down,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block",
+      "x": 90
+    },
+    "facing=up,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block",
+      "x": -90
+    },
+    "facing=north,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block"
+    },
+    "facing=south,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block",
+      "y": 180
+    },
+    "facing=west,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block",
+      "y": 270
+    },
+    "facing=east,powered=false": {
+      "model": "createaeronautics:block/optical_sensor/block",
+      "y": 90
+    },
+    "facing=down,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered",
+      "x": 90
+    },
+    "facing=up,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered",
+      "x": -90
+    },
+    "facing=north,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered"
+    },
+    "facing=south,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered",
+      "y": 180
+    },
+    "facing=west,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered",
+      "y": 270
+    },
+    "facing=east,powered=true": {
+      "model": "createaeronautics:block/optical_sensor/block_powered",
+      "y": 90
+    }
+  }
+}
