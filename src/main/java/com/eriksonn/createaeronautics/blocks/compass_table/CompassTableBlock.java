@@ -3,6 +3,7 @@ package com.eriksonn.createaeronautics.blocks.compass_table;
 import java.util.Random;
 import java.util.Vector;
 
+import com.eriksonn.createaeronautics.contraptions.AirshipManager;
 import com.eriksonn.createaeronautics.index.CAShapes;
 import com.eriksonn.createaeronautics.index.CATileEntities;
 import com.simibubi.create.AllBlocks;
@@ -28,6 +29,8 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.CompassItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -97,6 +100,27 @@ public class CompassTableBlock extends HorizontalBlock implements ITE<CompassTab
 	@Override
 	public int getSignal(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
 		if(side == Direction.UP || side == Direction.DOWN || !getTileEntity(blockAccess, pos).hasCompass()) {
+			return 0;
+		}
+
+		AirshipManager.AirshipOrientedInfo info = AirshipManager.INSTANCE.getInfo(getTileEntity(blockAccess, pos).getLevel(), pos);
+
+		ItemStack stack = getTileEntity(blockAccess, pos).inventory.getStackInSlot(0);
+		CompoundNBT tag = stack.getTag();
+		boolean inSameDimension = info.level.dimension().equals(CompassItem.getLodestoneDimension(tag).orElse(null));
+
+		if(!(inSameDimension && tag.contains("LodestonePos"))) return 0;
+		BlockPos trackingPosition = NBTUtil.readBlockPos(tag.getCompound("LodestonePos"));
+		Vector3d trackingVector = new Vector3d(trackingPosition.getX(), trackingPosition.getY(), trackingPosition.getZ()).add(0.5, 0.5, 0.5);
+
+		// current position
+		Vector3d position = info.position;
+
+		// difference between goal and current position
+		Vector3d difference = trackingVector.subtract(position);
+		difference = new Vector3d(difference.x, 0.0, difference.z);
+
+		if (difference.length() < 5.0) {
 			return 0;
 		}
 
