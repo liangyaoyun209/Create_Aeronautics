@@ -14,41 +14,46 @@ import static net.minecraft.util.Direction.UP;
 public class CAShapes {
 
     public static final VoxelShaper
-    STATIONARY_CANNON = shape(0, 0, 0, 16, 12, 16)
+            STATIONARY_CANNON = shape(0, 0, 0, 16, 12, 16)
             .add(3, 12, 3, 13, 14, 13)
             .add(5, 14, 5, 11, 25, 11)
             .add(4, 25, 4, 12, 27, 12)
             .erase(6, 14, 6, 10, 27, 10)
             .forDirectional(),
-    TORSION_SPRING = shape(0, 0, 0, 16, 3, 16)
-            .add(4, 3, 4, 12, 13, 12)
-            .add(2, 5, 2, 14, 11, 14)
-            .add(0,13,0,16,16,16)
-            .forAxis(),
-    AIRSHIP_ASSEMBLER=  shape(0, 0, 0, 16, 4, 16)
-            .add(2, 4, 2, 14, 12, 14)
-            .add(4, 12, 4, 12, 13, 12)
-            .add(6, 13, 6,10, 16, 10)
-            .forAxis(),
-    STIRLING_ENGINE = shape(0,0,0,16,2,16)
-            .add(3,2,0,13,12,16)
-            .forDirectional(Direction.NORTH),
-    PROPELLER_BEARING = shape(0,0,0,16,16,16)
-            .erase(0,0,0,5,12,5)
-            .erase(16,0,0,11,12,5)
-            .erase(0,0,16,5,12,11)
-            .erase(16,0,16,11,12,11)
-            .forDirectional(),
-    ANALOG_CLUTCH = shape(0,0,0,0,16,2)
-            .add(0, 0, 0, 16, 16, 2)
-            .add(16, 16, 16, 0, 0, 14)
-            .add(16, 16, 16, 14, 0, 0)
-            .add(2, 2, 2, 14, 14, 14)
-            .forAxis(),
-    OPTICAL_SENSOR = shape(0, 0, 0, 16, 6, 16)
-            .add(1, 6, 1, 14, 14, 14)
-            .add(0, 14, 0, 16, 16, 16)
-            .forDirectional(Direction.NORTH);
+            TORSION_SPRING = shape(0, 0, 0, 16, 3, 16)
+                    .add(4, 3, 4, 12, 13, 12)
+                    .add(2, 5, 2, 14, 11, 14)
+                    .add(0, 13, 0, 16, 16, 16)
+                    .forAxis(),
+            AIRSHIP_ASSEMBLER = shape(0, 0, 0, 16, 4, 16)
+                    .add(2, 4, 2, 14, 12, 14)
+                    .add(4, 12, 4, 12, 13, 12)
+                    .add(6, 13, 6, 10, 16, 10)
+                    .forAxis(),
+            STIRLING_ENGINE = shape(0, 0, 0, 16, 2, 16)
+                    .add(3, 2, 0, 13, 12, 16)
+                    .forDirectional(Direction.NORTH),
+            PROPELLER_BEARING = shape(0, 0, 0, 16, 16, 16)
+                    .erase(0, 0, 0, 5, 12, 5)
+                    .erase(16, 0, 0, 11, 12, 5)
+                    .erase(0, 0, 16, 5, 12, 11)
+                    .erase(16, 0, 16, 11, 12, 11)
+                    .forDirectional(),
+            ANALOG_CLUTCH = shape(0, 0, 0, 0, 16, 2)
+                    .add(0, 0, 0, 16, 16, 2)
+                    .add(16, 16, 16, 0, 0, 14)
+                    .add(16, 16, 16, 14, 0, 0)
+                    .add(2, 2, 2, 14, 14, 14)
+                    .forAxis(),
+            COMPASS_TABLE = shape(0, 0, 0, 16, 2, 16)
+                    .add(5, 2, 5, 11, 11, 11)
+                    .add(1, 11, 1, 15, 14, 15)
+                    .forDirectional(Direction.NORTH),
+            OPTICAL_SENSOR = shape(0, 0, 0, 16, 6, 16)
+                    .add(1, 6, 1, 14, 14, 14)
+                    .add(0, 14, 0, 16, 16, 16)
+                    .forDirectional(Direction.NORTH);
+
     private static CAShapes.Builder shape(VoxelShape shape) {
         return new CAShapes.Builder(shape);
     }

@@ -1,6 +1,7 @@
 {
   "block.createaeronautics.airship_assembler": "Airship Assembler",
   "block.createaeronautics.analog_clutch": "Analog Clutch",
+  "block.createaeronautics.compass_table": "Compass Table",
   "block.createaeronautics.gyroscopic_propeller_bearing": "Gyroscopic Propeller Bearing",
   "block.createaeronautics.levitite_casing": "Levitite Casing",
   "block.createaeronautics.modulating_redstone_link": "Modulating Redstone Link",
