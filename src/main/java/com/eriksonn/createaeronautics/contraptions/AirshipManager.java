@@ -6,6 +6,7 @@ import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
 import com.eriksonn.createaeronautics.mixins.ContraptionHolderAccessor;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.eriksonn.createaeronautics.utils.AbstractContraptionEntityExtension;
+import com.eriksonn.createaeronautics.utils.Transform;
 import com.eriksonn.createaeronautics.world.FakeAirshipClientWorld;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllMovementBehaviours;
@@ -231,8 +232,28 @@ public class AirshipManager {
         @SubscribeEvent
         public static void renderStartEvent(TickEvent.RenderTickEvent e)
         {
+            float partialTicks = AnimationTickHolder.getPartialTicks();
+
             Minecraft mc = Minecraft.getInstance();
             if(mc.player == null) return;
+
+            for (Map.Entry<Integer, AirshipContraptionEntity> entry : AirshipManager.INSTANCE.AllClientAirships.entrySet()) {
+                AirshipContraptionEntity airship = entry.getValue();
+
+                // if we're at the very start of a tick, no need for interpolation
+                if(partialTicks == 0.0) airship.smoothedRenderTransform = airship.previousRenderTransform;
+
+                // same for the end of the tick
+                if(partialTicks == 1.0) airship.previousRenderTransform = airship.smoothedRenderTransform;
+
+
+                Quaternion smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation, airship.renderTransform.orientation, partialTicks);
+                Vector3d smoothiePos = ContraptionSmoother.lerp(airship.previousRenderTransform.position, airship.renderTransform.position, partialTicks);
+
+                airship.smoothedRenderTransform = new Transform(smoothiePos, smoothieRotation);
+                // entry.getValue().smoothedRenderTransform
+            }
+
             BlockPos pos = mc.player.blockPosition();
 
             if (!mc.player.isOnGround())
@@ -245,10 +266,12 @@ public class AirshipManager {
             for (AirshipContraptionEntity contraption : possibleContraptions) {
                 if(contraption.collidingEntities.containsKey(mc.player)) {
                     float speed = (float) (contraption.simulatedRigidbody.rotate(contraption.simulatedRigidbody.getAngularVelocity()).y * (180.0 / Math.PI));
-                    mc.player.yRot = mc.player.yRotO + speed * AnimationTickHolder.getPartialTicks() * 0.05f;
+                    mc.player.yRot = mc.player.yRotO + speed * partialTicks * 0.05f;
                     mc.player.yBodyRot = mc.player.yRot;
                 }
             }
+
+
         }
     }
     public class AirshipOrientedInfo {
