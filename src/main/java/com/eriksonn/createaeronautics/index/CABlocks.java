@@ -4,6 +4,7 @@ import com.eriksonn.createaeronautics.CreateAeronautics;
 import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerBlock;
 import com.eriksonn.createaeronautics.blocks.analog_clutch.AnalogClutchBlock;
+import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableBlock;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicBearingBlock;
 import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
@@ -23,6 +24,7 @@ import com.simibubi.create.foundation.block.BlockStressDefaults;
 import com.simibubi.create.foundation.data.*;
 import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.AbstractFurnaceBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -133,6 +135,15 @@ public class CABlocks {
 //            .simpleItem()
             .item()
             .transform(customItemModel())
+            .register();
+
+    public static final BlockEntry<CompassTableBlock> COMPASS_TABLE = REGISTRATE.block("compass_table", CompassTableBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .blockstate((ctx, prov) -> prov.horizontalBlock(ctx.get(), blockState -> prov.models()
+                    .getExistingFile(prov.modLoc("block/" + ctx.getName() + "/block"))))
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag) //Dono what this tag means (contraption safe?).
+            .item().transform(customItemModel())
             .register();
 
 

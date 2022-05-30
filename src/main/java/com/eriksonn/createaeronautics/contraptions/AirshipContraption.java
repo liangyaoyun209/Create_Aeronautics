@@ -33,8 +33,10 @@ public class AirshipContraption extends Contraption {
         //BlockPos offset = pos.relative(Direction.DOWN);
         BlockPos offset = pos;
         if (!this.searchMovedStructure(world, offset, (Direction)null)) {
+            this.storage.clear();
             return false;
         } else {
+            this.storage.clear();
             this.startMoving(world);
             this.expandBoundsAroundAxis(Direction.Axis.Y);
 

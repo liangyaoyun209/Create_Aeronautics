@@ -1,0 +1,39 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "createaeronautics:block/compass_table/mini_compass",
+		"particle": "createaeronautics:block/compass_table/mini_compass"
+	},
+	"elements": [
+		{
+			"name": "pointer",
+			"from": [6.499, 1.999, 6.399],
+			"to": [10.501, 2.001, 9.401],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
+			"faces": {
+				"north": {"uv": [0, 8, 1.33333, 8], "texture": "#0"},
+				"east": {"uv": [0, 9.6, 1, 9.6], "texture": "#0"},
+				"south": {"uv": [0, 8, 1.33333, 8], "texture": "#0"},
+				"west": {"uv": [0, 9.6, 1, 9.6], "texture": "#0"},
+				"up": {"uv": [0, 8, 4, 11], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [14.66667, 14.5, 16, 16], "rotation": 180, "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "compass",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				0,
+				{
+					"name": "pointer",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [1]
+				}
+			]
+		}
+	]
+}
