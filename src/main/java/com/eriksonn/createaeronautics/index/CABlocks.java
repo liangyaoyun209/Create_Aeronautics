@@ -3,7 +3,10 @@ package com.eriksonn.createaeronautics.index;
 import com.eriksonn.createaeronautics.CreateAeronautics;
 import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerBlock;
+import com.eriksonn.createaeronautics.blocks.analog_clutch.AnalogClutchBlock;
+import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableBlock;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicBearingBlock;
+import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.blocks.redstone.modulating_redstone_link.ModulatingRedstoneLinkBlock;
 import com.eriksonn.createaeronautics.blocks.stationary_potato_cannon.StationaryPotatoCannonBlock;
@@ -17,14 +20,16 @@ import com.simibubi.create.AllTags;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.content.contraptions.base.CasingBlock;
-import com.simibubi.create.foundation.data.BlockStateGen;
-import com.simibubi.create.foundation.data.BuilderTransformers;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.data.SharedProperties;
+import com.simibubi.create.foundation.block.BlockStressDefaults;
+import com.simibubi.create.foundation.data.*;
 import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.AbstractFurnaceBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
 
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 
@@ -102,6 +107,46 @@ public class CABlocks {
             .item().transform(customItemModel())
             .addLayer(() -> RenderType::translucent)
             .register();
+
+
+    public static final BlockEntry<AnalogClutchBlock> ANAlOG_CLUTCH = REGISTRATE.block("analog_clutch", AnalogClutchBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .transform(BlockStressDefaults.setNoImpact())
+            .blockstate((c, p) -> BlockStateGen.axisBlock(c, p, AssetLookup.forPowered(c, p)))
+            .item()
+            .transform(customItemModel())
+            .register();
+
+    public static final BlockEntry<OpticalSensorBlock> OPTICAL_SENSOR = REGISTRATE.block("optical_sensor", OpticalSensorBlock::new)
+            .initialProperties(SharedProperties::wooden)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry())
+                    .forAllStates(state -> {
+                        Direction dir = state.getValue(BlockStateProperties.FACING);
+                        return ConfiguredModel.builder()
+                                .modelFile(prov.models().getExistingFile(prov.modLoc("block/optical_sensor/block" + (state.getValue(OpticalSensorBlock.POWERED) ? "_powered" : ""))))
+                                .rotationX(dir == Direction.DOWN ? 90 : dir.getAxis().isHorizontal() ? 0 : -90)
+                                .rotationY(dir.getAxis().isVertical() ? 0 : (((int) dir.toYRot()) + 180) % 360)
+                                .build();
+                    })
+            )
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag) //Dono what this tag means (contraption safe?).
+//            .simpleItem()
+            .item()
+            .transform(customItemModel())
+            .register();
+
+    public static final BlockEntry<CompassTableBlock> COMPASS_TABLE = REGISTRATE.block("compass_table", CompassTableBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .blockstate((ctx, prov) -> prov.horizontalBlock(ctx.get(), blockState -> prov.models()
+                    .getExistingFile(prov.modLoc("block/" + ctx.getName() + "/block"))))
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag) //Dono what this tag means (contraption safe?).
+            .item().transform(customItemModel())
+            .register();
+
+
 
     public static void register() {
         //CreateAeronautics.registrate().addToSection(TORSION_SPRING, AllSections.KINETICS);

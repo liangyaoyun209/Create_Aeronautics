@@ -7,6 +7,8 @@
     "createaeronautics:gyroscopic_propeller_bearing",
     "createaeronautics:stationary_potato_cannon",
     "createaeronautics:stirling_engine",
-    "createaeronautics:modulating_redstone_link"
+    "createaeronautics:modulating_redstone_link",
+    "createaeronautics:optical_sensor",
+    "createaeronautics:compass_table"
   ]
 }

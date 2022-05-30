@@ -16,6 +16,7 @@
     "ControlledContraptionEntityMixin",
     "DimensionTypeMixin",
     "GoggleOverlayRendererMixin",
+    "ItemUseContextMixin",
     "Matrix3dAccessor",
     "MechanicalBearingTileEntityMixin",
     "OutlineEntryMixin",

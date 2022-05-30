@@ -3,9 +3,14 @@ package com.eriksonn.createaeronautics.index;
 
 import com.eriksonn.createaeronautics.CreateAeronautics;
 import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerTileEntity;
+import com.eriksonn.createaeronautics.blocks.analog_clutch.AnalogClutchTileEntity;
+import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableRenderer;
+import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableTileEntity;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingInstance;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingRenderer;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingTileEntity;
+import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorRenderer;
+import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorTileEntity;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingTileEntity;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineInstance;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineRenderer;
@@ -57,5 +62,22 @@ public class CATileEntities {
             .validBlocks(CABlocks.STIRLING_ENGINE)
             .renderer(() -> StirlingEngineRenderer::new)
             .register();
+    public static final TileEntityEntry<AnalogClutchTileEntity> ANALOG_CLUTCH = CreateAeronautics.registrate()
+            .tileEntity("analog_clutch", AnalogClutchTileEntity::new)
+            .instance(() -> SplitShaftInstance::new)
+            .validBlocks(CABlocks.ANAlOG_CLUTCH)
+            .renderer(() -> SplitShaftRenderer::new)
+            .register();
+    public static final TileEntityEntry<OpticalSensorTileEntity> OPTICAL_SENSOR = CreateAeronautics.registrate()
+            .tileEntity("optical_sensor", OpticalSensorTileEntity::new)
+            .validBlocks(CABlocks.OPTICAL_SENSOR)
+            .renderer(() -> OpticalSensorRenderer::new)
+            .register();
+    public static final TileEntityEntry<CompassTableTileEntity> COMPASS_TABLE = CreateAeronautics.registrate()
+            .tileEntity("compass_table", CompassTableTileEntity::new)
+            .validBlocks(CABlocks.COMPASS_TABLE)
+            .renderer(() -> CompassTableRenderer::new)
+            .register();
+
     public static void register() {}
 }

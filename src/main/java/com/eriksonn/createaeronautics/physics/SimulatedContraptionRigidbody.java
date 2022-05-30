@@ -450,6 +450,8 @@ public AirshipContraption contraption;
         return new Tuple<>(new Vector3d(0,totalForce,0),totalPos);
     }
 
+    Vector3d previousCenterOfMass = null;
+
     void mergeMassFromSubContraptions()
     {
         mass=localMass;
@@ -486,6 +488,31 @@ public AirshipContraption contraption;
                     inertiaTensor[i][j]+= rigidbody.localInertiaTensor[i][j] - rigidbody.localMass*posArray[i]* posArray[j];
             for (int i = 0; i < 3; i++) inertiaTensor[i][i] +=rigidbody.localMass * pos.lengthSqr();
         }
+
+        if(previousCenterOfMass == null) previousCenterOfMass = centerOfMass;
+
+        if(!previousCenterOfMass.equals(centerOfMass)) {
+            Vector3d movement = centerOfMass.subtract(previousCenterOfMass);
+            contraption.entity.move(movement.x, movement.y, movement.z);
+        }
+
+        previousCenterOfMass = centerOfMass;
+        /*Map<BlockPos, Template.BlockInfo> blocks = contraption.getBlocks();
+        double maxDistance = 0;
+        double maxDistanceSquared = 0;
+        for (Map.Entry<BlockPos, Template.BlockInfo> entry : blocks.entrySet()) {
+            Vector3d vec = new Vector3d(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
+
+            if (vec.lengthSqr() > maxDistanceSquared) {
+                maxDistanceSquared = vec.lengthSqr();
+                maxDistance = vec.length();
+
+            }
+        }
+        maxDistance += 2 + centerOfMass.length();
+        Vector3d start = new Vector3d(maxDistance, maxDistance, maxDistance).add(adapter.position());
+        Vector3d end = new Vector3d(-maxDistance, -maxDistance, -maxDistance).add(adapter.position());
+        contraption.entity.setBoundingBox(new AxisAlignedBB(end, start));*/
     }
     void updateRotation()
     {
