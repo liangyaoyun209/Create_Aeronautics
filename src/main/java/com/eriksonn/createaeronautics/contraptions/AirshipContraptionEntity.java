@@ -65,7 +65,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     public Quaternionf quat = Quaternionf.ONE;
     public Vector3d velocity;
     public AirshipContraption airshipContraption;
-    public int plotId = 0;
+    public int plotId = -1;
     public SimulatedContraptionRigidbody simulatedRigidbody;
 
     public Transform renderTransform = new Transform(Vector3d.ZERO, Quaternionf.ONE);
@@ -81,7 +81,6 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         // testing
 //        this.simulatedRigidbody.angularMomentum = new Vector3d(0, 0, 40);
 
-        AirshipManager.INSTANCE.tryAddEntity(AirshipManager.INSTANCE.getNextId(), this);
         airshipContraption = (AirshipContraption) contraption;
         System.out.println("New airship entity");
     }
@@ -91,8 +90,10 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         entity.setContraption(contraption);
         entity.airshipContraption = contraption;
         entity.simulatedRigidbody = new SimulatedContraptionRigidbody((AirshipContraption) entity.airshipContraption, new ContraptionEntityPhysicsAdapter(entity));
-        AirshipManager.INSTANCE.tryAddEntity(AirshipManager.INSTANCE.getNextId(), entity);
+        int id = AirshipManager.INSTANCE.getNextId();
+        AirshipManager.INSTANCE.tryAddEntity(id, entity);
 
+        entity.plotId = id;
         entity.simulatedRigidbody.tryInit();
         return entity;
 
@@ -342,7 +343,11 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     @Override
     protected void readAdditional(CompoundNBT compound, boolean spawnPacket) {
         super.readAdditional(compound, spawnPacket);
+        int previousPlotID = plotId;
         plotId = compound.getInt("PlotId");
+        if(previousPlotID == -1) {
+            AirshipManager.INSTANCE.tryAddEntity(plotId, this);
+        }
         simulatedRigidbody.globalVelocity = simulatedRigidbody.arrayToVec(readDoubleArray(compound, "velocity"));
         //simulatedRigidbody.angularVelocity = simulatedRigidbody.arrayToVec(readDoubleArray(compound, "angularVelocity"));
         simulatedRigidbody.orientation = simulatedRigidbody.arrayToQuat(readDoubleArray(compound, "orientation"));

@@ -181,16 +181,16 @@ public class AirshipManager {
     static final int PlotCenterHeight=64;
     public static BlockPos getPlotPosFromId(int id)
     {
-        return new BlockPos(64, 64, 64);
+        return new BlockPos(64, 64, 64 + id * PlotWidth);
     }
     public static int getIdFromPlotPos(BlockPos pos)
     {
-        return 0;
+        return pos.getZ() / 128;
     }
     private static int airshipID = 0;
     public int getNextId()
     {
-        return 0;
+        return airshipID++;
     }
     public static class AirshipEventHandler
     {
