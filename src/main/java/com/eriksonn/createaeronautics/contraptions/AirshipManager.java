@@ -161,10 +161,10 @@ public class AirshipManager {
     public AirshipOrientedInfo getInfo(World world, BlockPos pos) {
 
         Vector3d vecPos = new Vector3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, 0.5, 0.5);
-        AirshipContraptionEntity airshipFromWorld = ClientAirshipEntityManager.airshipFromWorld(world);
-        if(airshipFromWorld != null) {
+        if(world.isClientSide && ClientAirshipEntityManager.airshipFromWorld(world) != null) {
+            AirshipContraptionEntity airshipFromWorld = ClientAirshipEntityManager.airshipFromWorld(world);
             return new AirshipOrientedInfo(airshipFromWorld,airshipFromWorld.toGlobalVector(vecPos.subtract(0, airshipFromWorld.getPlotPos().getY(), 0), 0f), airshipFromWorld.quat, airshipFromWorld.level, true);
-        } else if (world == AirshipDimensionManager.INSTANCE.getWorld()) {
+        } else if (!world.isClientSide && world == AirshipDimensionManager.INSTANCE.getWorld()) {
             int airshipID = getIdFromPlotPos(pos);
 
             AirshipContraptionEntity airship = AllAirships.get(airshipID);
