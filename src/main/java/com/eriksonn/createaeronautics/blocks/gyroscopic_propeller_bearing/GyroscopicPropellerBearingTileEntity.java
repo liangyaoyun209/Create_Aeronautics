@@ -32,8 +32,9 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     boolean powered=false;
     public GyroscopicPropellerBearingTileEntity(TileEntityType<? extends PropellerBearingTileEntity> type) {
         super(type);
-        tiltQuat=new Quaternion(0,0,0,1);
-        tiltQuat.normalize();
+        Quaternionf tiltQuatf=new Quaternionf(0,0,0,1);
+        tiltQuatf.normalize();
+        tiltQuat = tiltQuatf.toMojangQuaternion();
     }
 
     @Override
