@@ -3,6 +3,7 @@ package com.eriksonn.createaeronautics.events;
 import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipManager;
 import com.eriksonn.createaeronautics.contraptions.ContraptionSmoother;
+import com.eriksonn.createaeronautics.mixins.ActiveRenderInfoMixin;
 import com.eriksonn.createaeronautics.utils.MathUtils;
 import com.eriksonn.createaeronautics.utils.Transform;
 import com.eriksonn.createaeronautics.utils.math.Quaternionf;
@@ -16,15 +17,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Matrix3f;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,6 +51,32 @@ public class RenderEvents {
         consumer.vertex(matrix, (float)vecA.x, (float)vecA.y, (float)vecA.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
         consumer.vertex(matrix, (float)vecB.x, (float)vecB.y, (float)vecB.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
     }*/
+
+    @SubscribeEvent
+    public static void cameraSetup(EntityViewRenderEvent.CameraSetup event) {
+        Entity vehicle = Minecraft.getInstance().player.getVehicle();
+        if(vehicle != null && vehicle instanceof AirshipContraptionEntity && !Minecraft.getInstance().gameRenderer.getMainCamera().isDetached()) {
+            Entity camera = (Minecraft.getInstance().getCameraEntity() == null ? Minecraft.getInstance().player : Minecraft.getInstance().getCameraEntity());
+//            Vector3d position = camera.position().add(new Vector3d(0.0, camera.getEyeHeight(), 0.0));
+            AirshipContraptionEntity airship = (AirshipContraptionEntity) vehicle;
+            Vector3d position = airship.getPassengerPosition(Minecraft.getInstance().player, 0.0f).add(new Vector3d(0.0, camera.getEyeHeight(), 0.0));
+            ActiveRenderInfoMixin infoMixin = ((ActiveRenderInfoMixin) event.getInfo());
+            infoMixin.invokeSetPosition(position.x, position.y, position.z);
+
+            Vector3f forwards = infoMixin.getForwards();
+            Vector3d rotatedForwards = MathUtils.rotateQuat(new Vector3d(forwards), airship.smoothedRenderTransform.orientation);
+            forwards.set((float) rotatedForwards.x, (float) rotatedForwards.y, (float) rotatedForwards.z);
+
+            Vector3f up = infoMixin.getUp();
+            Vector3d rotatedUp = MathUtils.rotateQuat(new Vector3d(up), airship.smoothedRenderTransform.orientation);
+            up.set((float) rotatedUp.x, (float) rotatedUp.y, (float) rotatedUp.z);
+
+            Vector3f left = infoMixin.getLeft();
+            Vector3d rotatedLeft = MathUtils.rotateQuat(new Vector3d(left), airship.smoothedRenderTransform.orientation);
+            left.set((float) rotatedLeft.x, (float) rotatedLeft.y, (float) rotatedLeft.z);
+        }
+    }
+
     @SubscribeEvent
     public static void renderStartEvent(TickEvent.RenderTickEvent e)
     {
@@ -66,6 +97,7 @@ public class RenderEvents {
 
             Quaternionf smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation, airship.renderTransform.orientation, partialTicks);
             Vector3d smoothiePos = ContraptionSmoother.lerp(airship.previousRenderTransform.position, airship.renderTransform.position, partialTicks);
+            smoothieRotation.normalize();
 
             airship.smoothedRenderTransform = new Transform(smoothiePos, smoothieRotation);
             // entry.getValue().smoothedRenderTransform
@@ -102,14 +134,31 @@ public class RenderEvents {
 
         Vector3d playerEye = RaycastHelper.getTraceOrigin(mc.player);
 
-        double reach = mc.gameMode.getPickRange();
-        if (mc.hitResult != null && mc.hitResult.getLocation() != null)
+        Entity vehicle = Minecraft.getInstance().player.getVehicle();
+        if(vehicle != null && vehicle instanceof AirshipContraptionEntity && !Minecraft.getInstance().gameRenderer.getMainCamera().isDetached()) {
+//            playerEye = ((AirshipContraptionEntity) vehicle).getPassengerPosition(mc.player, 1f).add(0, mc.player.getEyeHeight(), 0);
+        }
+
+            double reach = mc.gameMode.getPickRange();
+        if (mc.hitResult != null) {
+            mc.hitResult.getLocation();
             reach = Math.max(mc.hitResult.getLocation()
                     .distanceTo(playerEye), reach);
+        }
+
+
 
         Vector3d target = RaycastHelper.getTraceTarget(mc.player, reach, playerEye);
+
+
+        if(vehicle != null && vehicle instanceof AirshipContraptionEntity) {
+            ActiveRenderInfoMixin infoMixin = ((ActiveRenderInfoMixin) Minecraft.getInstance().gameRenderer.getMainCamera());
+            Vector3f forwards = Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
+            target = /*((AirshipContraptionEntity) vehicle).getPassengerPosition(mc.player, 1f).add(0, mc.player.getEyeHeight(), 0)*/playerEye.add(forwards.x() * reach, forwards.y() * reach, forwards.z() * reach);
+        }
+
         for (AirshipContraptionEntity contraptionEntity : mc.level
-                .getEntitiesOfClass(AirshipContraptionEntity.class, new AxisAlignedBB(playerEye, target))) {
+                .getEntitiesOfClass(AirshipContraptionEntity.class, new AxisAlignedBB(playerEye, target).inflate(15.0))) {
 
             Vector3d localOrigin = contraptionEntity.toLocalVector(playerEye, 1);
             Vector3d localTarget = contraptionEntity.toLocalVector(target, 1);
@@ -158,6 +207,13 @@ public class RenderEvents {
 
         IRenderTypeBuffer.Impl buffer = mc.renderBuffers().bufferSource();
         IVertexBuilder builder = buffer.getBuffer(RenderType.LINES);
+        stack.translate(0.5, 0.5, 0.5);
+        Vector3d airshipPos = airship.smoothedRenderTransform.position;
+        stack.translate(airshipPos.x, airshipPos.y, airshipPos.z);
+        stack.mulPose(airship.smoothedRenderTransform.orientation.toMojangQuaternion());
+
+        stack.translate(-airship.centerOfMassOffset.x, -airship.centerOfMassOffset.y, -airship.centerOfMassOffset.z);
+        stack.translate(-0.5, -0.5, -0.5);
         Matrix4f matrix = stack.last().pose();
 
         shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
@@ -165,15 +221,15 @@ public class RenderEvents {
             // The points of the triangle
             Vector3d vecA = new Vector3d(minX, minY, minZ).add(new Vector3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
 
-            vecA = vecA.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
-            vecA = MathUtils.rotateQuat(vecA, airship.quat);
-            vecA  = vecA.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
+//            vecA = vecA.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
+//            vecA = MathUtils.rotateQuat(vecA, airship.smoothedRenderTransform.orientation);
+//            vecA  = vecA.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
 
             Vector3d vecB = new Vector3d(maxX, maxY, maxZ).add(new Vector3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
 
-            vecB = vecB.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
-            vecB = MathUtils.rotateQuat(vecB, airship.quat);
-            vecB  = vecB.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
+//            vecB = vecB.subtract(0.5, 0.5, 0.5).subtract(airship.centerOfMassOffset);
+//            vecB = MathUtils.rotateQuat(vecB, airship.smoothedRenderTransform.orientation);
+//            vecB  = vecB.add(0.5, 0.5, 0.5).add(airship.smoothedRenderTransform.position);
 
             int r = 0, g = 0, b = 0, a = (int) (0.4 * 255.0);
 

@@ -26,6 +26,7 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,9 +39,11 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
@@ -128,13 +131,14 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             }
         }
 
-        if(level.isClientSide) {
-            smoother.latestPosition = position();
-            smoother.latestOrientation = quat;
-            smoother.tick();
-            previousRenderTransform = renderTransform;
-            renderTransform = new Transform(smoother.smoothedPosition, smoother.smoothedOrientation);
-        }
+
+        // smoothy stuff woo
+        smoother.latestPosition = position();
+        smoother.latestOrientation = quat;
+        smoother.tick();
+        previousRenderTransform = renderTransform;
+        renderTransform = new Transform(smoother.smoothedPosition, smoother.smoothedOrientation);
+
 
         if (!airshipInitialized) {
             if(helper != null) helper.initFakeClientWorld();
@@ -143,6 +147,11 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             previousRenderTransform = renderTransform;
             smoother.smoothedPosition = renderTransform.position;
             smoother.smoothedOrientation = renderTransform.orientation;
+        }
+
+
+        if(!level.isClientSide) {
+            smoothedRenderTransform = renderTransform;
         }
 
         if (level.isClientSide) {
@@ -393,6 +402,16 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         return globalVec.add(centerOfMassOffset);
     }
 
+    public Vector3d toLocalVectorSmoothed(Vector3d globalVec, float partialTick) {
+        Vector3d rotationOffset = VecHelper.getCenterOf(BlockPos.ZERO);
+        globalVec = globalVec.subtract(smoothedRenderTransform.position)
+                .subtract(rotationOffset);
+        globalVec = MathUtils.rotateQuatReverse(globalVec, smoothedRenderTransform.orientation);
+        globalVec = globalVec.add(rotationOffset);
+        //return globalVec;
+        return globalVec.add(centerOfMassOffset);
+    }
+
     protected StructureTransform makeStructureTransform() {
         BlockPos offset = new BlockPos(this.getAnchorVec().subtract(centerOfMassOffset)).offset(0,1,0);
         return new StructureTransform(offset, 0.0F, 0, 0.0F);
@@ -599,6 +618,8 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         return anchorVec;
     }
 
+
+
     public static class AirshipRotationState extends ContraptionRotationState {
         public static final ContraptionRotationState NONE = new ContraptionRotationState();
 
@@ -635,4 +656,31 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
     public Vector3d getContactPointMotion(Vector3d globalContactPoint) {
         return simulatedRigidbody.getVelocityAtPoint(toLocalVector(globalContactPoint,0.0f).subtract(0.5, 0.5, 0.5)).scale(0.05f);
     }
+
+    @Override
+    public Vector3d getPassengerPosition(Entity passenger, float partialTicks) {
+
+        UUID id = passenger.getUUID();
+        if (passenger instanceof OrientedContraptionEntity) {
+            BlockPos localPos = contraption.getBearingPosOf(id);
+            if (localPos != null)
+                return toGlobalVector(VecHelper.getCenterOf(localPos), partialTicks)
+                        .add(VecHelper.getCenterOf(BlockPos.ZERO))
+                        .subtract(.5f, 1, .5f);
+        }
+
+        AxisAlignedBB bb = passenger.getBoundingBox();
+        double ySize = bb.getYsize();
+        BlockPos seat = contraption.getSeatOf(id);
+        if (seat == null)
+            return null;
+
+        return smoothedRenderTransform.position.add(MathUtils.rotateQuat(
+                Vector3d.atLowerCornerOf(seat).add(new Vector3d(0.0, passenger.getMyRidingOffset() + ySize - .15f, 0.0)).subtract(centerOfMassOffset),
+                smoothedRenderTransform.orientation)).add(0.5, 0.5, 0.5).subtract(new Vector3d(0.0, ySize, 0.0));
+
+//        Vector3d transformedVector = local.add(VecHelper.getCenterOf(BlockPos.ZERO))
+//                .subtract(0.5, ySize, 0.5);
+    }
+
 }

@@ -8,6 +8,7 @@
     "BearingContraptionMixin",
     "ClientWorldAccessorMixin",
     "ContraptionColliderMixin",
+    "ContraptionHandlerClientMixin",
     "ContraptionHolderAccessor",
     "ContraptionMatriciesMixin",
     "ContraptionMixin",
@@ -36,6 +37,7 @@
   },
   "minVersion": "0.8",
   "client": [
+    "ActiveRenderInfoMixin",
     "ContraptionRenderDispatcherMixin"
   ]
 }
