@@ -22,7 +22,7 @@ public class SequentialManifoldSolver implements IIterativeManifoldSolver {
 
     @Override
     public double getRestitution(BlockState blockA, BlockState blockB) {
-        return 0.0;
+        return 0.9;
     }
 
     @Override

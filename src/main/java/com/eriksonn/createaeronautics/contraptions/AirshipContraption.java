@@ -130,4 +130,9 @@ public class AirshipContraption extends Contraption {
     public ContraptionLighter<?> makeLighter() {
         return new NonStationaryLighter<>(this);
     }
+
+    @Override
+    protected boolean movementAllowed(BlockState state, World world, BlockPos pos) {
+        return true;
+    }
 }
