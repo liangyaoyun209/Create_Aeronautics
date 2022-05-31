@@ -56,7 +56,8 @@ public class ContraptionSmoother {
     public void tick() {
         // Get the latest position and orientation
         latestPosition = contraption.position();
-        latestOrientation = contraption.quat;
+        latestOrientation = contraption.quat.copy();
+        latestOrientation.normalize();
 
         // Compute the new smoothed position
         this.smoothedPosition = lerp(smoothedPosition, latestPosition, alpha);
