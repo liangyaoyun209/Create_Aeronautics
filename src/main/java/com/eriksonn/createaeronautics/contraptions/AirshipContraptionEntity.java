@@ -421,7 +421,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
 
         if(player.getItemInHand(interactionHand).getItem() instanceof ExtendoGripItem){
-            simulatedRigidbody.addGlobalForce(player.getLookAngle().scale(1000.0), new Vector3d(localPos.getX(), localPos.getY(), localPos.getZ()));
+            simulatedRigidbody.addGlobalForce(player.getLookAngle().scale(3000.0), new Vector3d(localPos.getX(), localPos.getY(), localPos.getZ()));
             return true;
         }
 
