@@ -40,7 +40,9 @@ public class SubcontraptionMatrixTransformer {
 
                 // rotate
                 Quaternionf Q = airshipEntity.smoothedRenderTransform.orientation.copy();
+//                Q.normalize();
                 Q.conj();
+//                Q.normalize();
                 model.mulPose(Q.toMojangQuaternion());
                 model.translate(-rotationOffset.x, -rotationOffset.y, -rotationOffset.z);
 //                model.translate(-postRotationOffset.x, -postRotationOffset.y, -postRotationOffset.z);
