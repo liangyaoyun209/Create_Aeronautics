@@ -47,7 +47,7 @@ public class ContraptionSmoother {
         this.contraption = contraption;
         this.alpha = alpha;
         this.smoothedPosition = contraption.position();
-        this.smoothedOrientation = contraption.quat;
+        this.smoothedOrientation = contraption.quat.copy();
     }
 
     /**
