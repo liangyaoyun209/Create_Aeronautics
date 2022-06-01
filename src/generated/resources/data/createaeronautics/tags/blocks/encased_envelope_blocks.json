@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "createaeronautics:white_envelope_encased_shaft",
+    "createaeronautics:orange_envelope_encased_shaft",
+    "createaeronautics:magenta_envelope_encased_shaft",
+    "createaeronautics:light_blue_envelope_encased_shaft",
+    "createaeronautics:yellow_envelope_encased_shaft",
+    "createaeronautics:lime_envelope_encased_shaft",
+    "createaeronautics:pink_envelope_encased_shaft",
+    "createaeronautics:gray_envelope_encased_shaft",
+    "createaeronautics:light_gray_envelope_encased_shaft",
+    "createaeronautics:cyan_envelope_encased_shaft",
+    "createaeronautics:purple_envelope_encased_shaft",
+    "createaeronautics:blue_envelope_encased_shaft",
+    "createaeronautics:brown_envelope_encased_shaft",
+    "createaeronautics:green_envelope_encased_shaft",
+    "createaeronautics:red_envelope_encased_shaft",
+    "createaeronautics:black_envelope_encased_shaft"
+  ]
+}

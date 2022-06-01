@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "createaeronautics:white_envelope_block",
+    "createaeronautics:orange_envelope_block",
+    "createaeronautics:magenta_envelope_block",
+    "createaeronautics:light_blue_envelope_block",
+    "createaeronautics:yellow_envelope_block",
+    "createaeronautics:lime_envelope_block",
+    "createaeronautics:pink_envelope_block",
+    "createaeronautics:gray_envelope_block",
+    "createaeronautics:light_gray_envelope_block",
+    "createaeronautics:cyan_envelope_block",
+    "createaeronautics:purple_envelope_block",
+    "createaeronautics:blue_envelope_block",
+    "createaeronautics:brown_envelope_block",
+    "createaeronautics:green_envelope_block",
+    "createaeronautics:red_envelope_block",
+    "createaeronautics:black_envelope_block"
+  ]
+}

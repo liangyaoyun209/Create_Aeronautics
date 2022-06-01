@@ -1,0 +1,6 @@
+{
+  "parent": "createaeronautics:block/envelope_encased_shaft/block",
+  "textures": {
+    "0": "createaeronautics:block/envelope_block/envelope_green"
+  }
+}

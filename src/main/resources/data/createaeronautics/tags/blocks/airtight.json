@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+	"#createaeronautics:envelope_blocks",
+	"#createaeronautics:encased_envelope_blocks"
+  ]
+}

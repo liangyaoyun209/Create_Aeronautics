@@ -1,0 +1,17 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "createaeronautics:block/purple_envelope_encased_shaft",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "createaeronautics:block/purple_envelope_encased_shaft"
+    },
+    "axis=z": {
+      "model": "createaeronautics:block/purple_envelope_encased_shaft",
+      "x": 90,
+      "y": 180
+    }
+  }
+}
