@@ -688,4 +688,9 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 //                .subtract(0.5, ySize, 0.5);
     }
 
+    @Override
+    public void onRemovedFromWorld() {
+        if(level.isClientSide) AirshipManager.INSTANCE.AllClientAirships.remove(plotId);
+        super.onRemovedFromWorld();
+    }
 }

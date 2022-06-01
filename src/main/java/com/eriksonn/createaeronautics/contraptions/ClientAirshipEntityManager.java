@@ -37,7 +37,7 @@ public class ClientAirshipEntityManager {
                 0, () -> profiler,
                 null, false, 0
         );
-        AirshipManager.INSTANCE.AllClientAirships.put(airship.plotId, airship);
+//        AirshipManager.INSTANCE.AllClientAirships.put(airship.plotId, airship);
 
         airshipContraption.maybeInstancedTileEntities.clear();
         airshipContraption.specialRenderedTileEntities.clear();

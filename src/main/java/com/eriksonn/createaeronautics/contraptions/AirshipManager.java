@@ -56,8 +56,13 @@ public class AirshipManager {
     }
     public void tryAddEntity(int index ,AirshipContraptionEntity E)
     {
-        AllAirships.putIfAbsent(index,E);
-        AirshipData.putIfAbsent(index,new AirshipContraptionData());
+        if (E.level.isClientSide) {
+            AllClientAirships.putIfAbsent(index, E);
+            AirshipData.putIfAbsent(index, new AirshipContraptionData());
+        } else {
+            AllAirships.putIfAbsent(index, E);
+            AirshipData.putIfAbsent(index, new AirshipContraptionData());
+        }
     }
     public void tick() {
         int plotToRemove=-1;
