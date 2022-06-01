@@ -187,12 +187,12 @@ public class RenderEvents {
             });
 
             if (predicateResult == null || predicateResult.missed())
-                return;
+                continue;
 
             BlockRayTraceResult rayTraceResult = mutableResult.getValue();
             BlockPos blockPos = rayTraceResult.getBlockPos();
 
-            renderBlockOutline(contraptionEntity, event.getMatrixStack(), voxelShape.get(), blockPos, event.getPartialTicks());
+             renderBlockOutline(contraptionEntity, event.getMatrixStack(), voxelShape.get(), blockPos, event.getPartialTicks());
         }
         mc.getProfiler().pop();
 

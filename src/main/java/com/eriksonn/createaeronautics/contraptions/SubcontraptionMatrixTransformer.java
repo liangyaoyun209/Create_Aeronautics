@@ -15,7 +15,7 @@ public class SubcontraptionMatrixTransformer {
     public static void setupTransforms(AbstractContraptionEntity entity, MatrixStack model) {
         if(entity instanceof ControlledContraptionEntity && entity.level instanceof FakeAirshipClientWorld)
         {
-            int plotId = AirshipManager.getIdFromPlotPos(((FakeAirshipClientWorld) entity.level).airship.blockPosition());
+            int plotId = ((FakeAirshipClientWorld) entity.level).airship.plotId;
             AirshipContraptionEntity airshipEntity = AirshipManager.INSTANCE.AllClientAirships.get(plotId);
             if(airshipEntity!=null) {
                 BlockPos clientWorldOffset = AirshipManager.getPlotPosFromId(plotId);
@@ -39,7 +39,7 @@ public class SubcontraptionMatrixTransformer {
                 model.translate(rotationOffset.x, rotationOffset.y, rotationOffset.z);
 
                 // rotate
-                Quaternionf Q = airshipEntity.quat.copy();
+                Quaternionf Q = airshipEntity.smoothedRenderTransform.orientation.copy();
                 Q.conj();
                 model.mulPose(Q.toMojangQuaternion());
                 model.translate(-rotationOffset.x, -rotationOffset.y, -rotationOffset.z);
