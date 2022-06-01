@@ -80,6 +80,7 @@ public AirshipContraption contraption;
     Map<BlockPos,IFloatingBlockProvider> altitudeLockingFloatingBlocks;
     public static final Map<Block, Supplier<IFloatingBlockProvider>> simpleCustomFloatingBlock = new HashMap<>();
     boolean isInitialized=false;
+    boolean isTileEntitiesInitialized=false;
 
     public Map<UUID, SubcontraptionRigidbody> subcontraptionRigidbodyMap;
 
@@ -119,7 +120,7 @@ public AirshipContraption contraption;
             generateMassDependentParameters(contraption,Vector3d.ZERO);
             mergeMassFromSubContraptions();
 
-            airshipAirFiller.FillAir(contraption);
+
             updateLevititeBuoyancyPositions();
             initCollision();
             updateRotation();
@@ -142,6 +143,12 @@ public AirshipContraption contraption;
         mergeMassFromSubContraptions();
 
         tryInit();
+
+        if(!isTileEntitiesInitialized && contraption.presentTileEntities.size()>0)
+        {
+            airshipAirFiller.FillAir(this);
+            isTileEntitiesInitialized=true;
+        }
 
 
         //orientation=new Quaternion(0,0,0.3827f,0.9239f);

@@ -53,12 +53,12 @@ public class MathUtils {
         double vv = v.dot(v);
         double vn = v.dot(coneAxis);
         double nn = coneAxis.dot(coneAxis);
-        //the 1.005 is to prevent floating point issues when v=axis,
+        //the 1.01 is to prevent floating point issues when v=axis,
         //and also have it behave smoother when v is almost the opposite of axis
-        double disc = nn*vv*1.005 - vn*vn;
+        double disc = nn*vv*1.01 - vn*vn;
         //quadratic formula
         double offsetDistance = (-vn + Math.sqrt(disc)/Math.tan(coneAngle))/nn;
-        if(offsetDistance<0)
+        if(offsetDistance<0 ^ coneAngle<0)
             return v;
 
         return (v.add(coneAxis.scale(offsetDistance))).normalize();

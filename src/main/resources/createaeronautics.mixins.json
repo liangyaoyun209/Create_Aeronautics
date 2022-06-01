@@ -19,6 +19,7 @@
     "DimensionTypeMixin",
     "GoggleOverlayRendererMixin",
     "ItemUseContextMixin",
+    "LinkBehaviourMixin",
     "Matrix3dAccessor",
     "MechanicalBearingTileEntityMixin",
     "OutlineEntryMixin",
@@ -30,7 +31,8 @@
     "SUpdateTileEntityPacketMixin",
     "WorldAccessorMixin",
     "WorldEventMixin",
-    "WorldRendererMixin"
+    "WorldRendererMixin",
+    "ShaftBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

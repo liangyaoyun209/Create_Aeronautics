@@ -89,12 +89,13 @@ public class GyroscopicPropellerBearingInstance extends BackHalfShaftInstance im
         msr.translate(bearing.blockNormal.scale(0.25));
         msr.multiply(bearing.tiltQuat);
         msr.translate(bearing.blockNormal.scale(-0.25));
+        msr.multiply(rotationAxis.rotationDegrees(interpolatedAngle));
         msr.multiply(blockOrientation);
 
 
 
 
-        msr.multiply(rotationAxis.rotationDegrees(interpolatedAngle));
+
 
         msr.unCentre();
         topData.setTransform(ms);

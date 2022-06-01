@@ -9,9 +9,11 @@ import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableTileEntit
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingInstance;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingRenderer;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicPropellerBearingTileEntity;
+import com.eriksonn.createaeronautics.blocks.hot_air.EnvelopeEncasedShaftTileEntity;
 import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorRenderer;
 import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorTileEntity;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingTileEntity;
+import com.eriksonn.createaeronautics.blocks.redstone.modulating_redstone_link.ModulatingRedstoneLinkTileEntity;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineInstance;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineRenderer;
 import com.eriksonn.createaeronautics.blocks.stirling_engine.StirlingEngineTileEntity;
@@ -21,8 +23,7 @@ import com.eriksonn.createaeronautics.blocks.stationary_potato_cannon.Stationary
 import com.eriksonn.createaeronautics.blocks.stationary_potato_cannon.StationaryPotatoCannonTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingInstance;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingRenderer;
-import com.simibubi.create.content.contraptions.relays.encased.SplitShaftRenderer;
-import com.simibubi.create.content.contraptions.relays.encased.SplitShaftInstance;
+import com.simibubi.create.content.contraptions.relays.encased.*;
 import com.simibubi.create.repack.registrate.util.entry.TileEntityEntry;
 
 public class CATileEntities {
@@ -62,6 +63,17 @@ public class CATileEntities {
             .validBlocks(CABlocks.STIRLING_ENGINE)
             .renderer(() -> StirlingEngineRenderer::new)
             .register();
+    public static final TileEntityEntry<ModulatingRedstoneLinkTileEntity> MODULATING_REDSTONE_LINK = CreateAeronautics.registrate()
+            .tileEntity("modulating_redstone_link", ModulatingRedstoneLinkTileEntity::new)
+            .validBlocks(CABlocks.MODULATING_REDSTONE_LINK)
+            .register();
+    public static final TileEntityEntry<EnvelopeEncasedShaftTileEntity> ENCASED_ENVELOPE_SHAFT = CreateAeronautics.registrate()
+        .tileEntity("encased_envelope_shaft", EnvelopeEncasedShaftTileEntity::new)
+        .instance(() -> ShaftInstance::new)
+        .validBlocks(CABlocks.ENVELOPE_ENCASED_SHAFT)
+        .validBlocks(CABlocks.DYED_ENVELOPE_ENCASED_SHAFT.toArray())
+        .renderer(() -> EncasedShaftRenderer::new)
+        .register();
     public static final TileEntityEntry<AnalogClutchTileEntity> ANALOG_CLUTCH = CreateAeronautics.registrate()
             .tileEntity("analog_clutch", AnalogClutchTileEntity::new)
             .instance(() -> SplitShaftInstance::new)

@@ -46,11 +46,12 @@ public abstract class AbstractContraptionRigidbody implements IRigidbody{
                 pos=pos.subtract(localCenterOfMass);
 
                 double[] posArray=new double[]{pos.x,pos.y,pos.z};
-                //TODO: Fix single blocks or lines of blocks causing zero inertia, as that leads to nan issues later on
+
                 for (int i = 0; i < 3; i++)
                     for (int j = 0; j < 3; j++)
                         localInertiaTensor[i][j]-=blockMass*posArray[i]* posArray[j];
-                for (int i = 0; i < 3; i++) localInertiaTensor[i][i] += blockMass * (pos.lengthSqr() + 1/6.0);
+                //the 1/6.0 is the inertia tensor of a solid cube
+                for (int i = 0; i < 3; i++) localInertiaTensor[i][i] += blockMass * (pos.lengthSqr()+1/6.0);
             }
         }
     }

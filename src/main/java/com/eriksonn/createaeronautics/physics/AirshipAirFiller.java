@@ -1,5 +1,6 @@
 package com.eriksonn.createaeronautics.physics;
 import com.eriksonn.createaeronautics.contraptions.AirshipContraption;
+import com.eriksonn.createaeronautics.index.CATags;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerTileEntity;
 import net.minecraft.block.BlockState;
@@ -18,14 +19,14 @@ import java.util.Map;
 public class AirshipAirFiller {
     // How much lift-force you can at most get proportionally to the air volume. Note it does not change the power you
     // get out of burners.
-    final double LOAD_CAPACITY_PER_AIR_UNIT = 5.0;
+    final double LOAD_CAPACITY_PER_AIR_UNIT = 1.5;
     // How much load a blaze burner can lift in total (huge for now to allow take-of)
     final double TEMP_BLAZE_BURNER_LIFT = 300.0;
 
     StaleAirSection stale_air_sections[];
     HashMap<BlockPos, HeatSource> heat_sources = new HashMap<BlockPos, HeatSource>();;
     
-    public void FillAir(AirshipContraption contraption) {
+    public void FillAir(SimulatedContraptionRigidbody rigidbody) {
         class SearchHead {
             int x, y, z;
             boolean connected_to_air;
@@ -50,6 +51,8 @@ public class AirshipAirFiller {
             int stale_air_section_idx = -1;
         }
 
+        AirshipContraption contraption = rigidbody.contraption;
+
         ArrayList<Region> regions = new ArrayList<Region>();
 
         // TODO: Is it necessary to add one to each end here? I'm doing that as safety to ensure you can't create air-bubbles with the edges
@@ -71,7 +74,7 @@ public class AirshipAirFiller {
 
         // Grab map data
         for (Map.Entry<BlockPos, Template.BlockInfo> entry : contraption.getBlocks().entrySet()) {
-            if (entry.getValue().state.is(BlockTags.WOOL)) {
+            if (entry.getValue().state.is(CATags.AIRTIGHT)) {
                 BlockPos pos = entry.getKey();
                 // TODO: Is this sanity check necessary? Presumably all the blocks `contraption.getBlocks()` gives out are within the bounds.
                 if (pos.getX() >= min_x && pos.getX() <= max_x && pos.getY() >= min_y && pos.getY() <= max_y && pos.getZ() >= min_z && pos.getZ() <= max_z) {
@@ -178,7 +181,9 @@ public class AirshipAirFiller {
                         int section_idx = region.section_idx;
                         cell.stale_air_section_idx = section_idx;
                         stale_air_sections[section_idx].air_volume += 1.0;
-                        section_points[section_idx].add(new Vector3d((double)(x + min_x), (double)(y + min_y), (double)(z + min_z)));
+                        Vector3d V = new Vector3d((double)(x + min_x), (double)(y + min_y), (double)(z + min_z));
+                        V=V.subtract(rigidbody.getCenterOfMass());
+                        section_points[section_idx].add(V);
 
                         /* Debugging aid
 
@@ -272,6 +277,8 @@ public class AirshipAirFiller {
     }
 
     public void apply(SimulatedContraptionRigidbody contraption) {
+        if(stale_air_sections==null)
+            return;
         for (int i = 0; i < stale_air_sections.length; i++) {
             if (stale_air_sections[i].controller.strengthScale >= 0.001) {
                 stale_air_sections[i].controller.apply(contraption, contraption.orientation, contraption.adapter.position());

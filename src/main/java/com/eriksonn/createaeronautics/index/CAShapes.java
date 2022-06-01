@@ -52,7 +52,10 @@ public class CAShapes {
             OPTICAL_SENSOR = shape(0, 0, 0, 16, 6, 16)
                     .add(1, 6, 1, 14, 14, 14)
                     .add(0, 14, 0, 16, 16, 16)
-                    .forDirectional(Direction.NORTH);
+                    .forDirectional(Direction.NORTH),
+            MODULATING_DIRECTIONAL_LINK = shape(1,0,1,15,3,15)
+                    .add(7,3,7,9,13,9)
+                    .forDirectional();
 
     private static CAShapes.Builder shape(VoxelShape shape) {
         return new CAShapes.Builder(shape);

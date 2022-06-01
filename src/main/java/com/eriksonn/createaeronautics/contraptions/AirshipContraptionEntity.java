@@ -455,7 +455,10 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
             BlockPos dimensionPos = localPos.offset(getPlotPos());
             World worldIn = AirshipDimensionManager.INSTANCE.getWorld();
             BlockState state = worldIn.getBlockState(dimensionPos);
-
+            if(localPos.equals(BlockPos.ZERO) && state.isAir())
+            {
+                disassemble();
+            }
             try {
                 BlockRayTraceResult pResult = new BlockRayTraceResult(
                         Vector3d.atBottomCenterOf(dimensionPos), side, dimensionPos, false

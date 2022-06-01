@@ -1,6 +1,8 @@
 package com.eriksonn.createaeronautics.mixins;
 
+import com.eriksonn.createaeronautics.blocks.IEnvelope;
 import com.eriksonn.createaeronautics.blocks.LevititeCasingBlock;
+import com.eriksonn.createaeronautics.blocks.hot_air.EnvelopeBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.index.CABlocks;
 import com.simibubi.create.AllBlocks;
@@ -43,8 +45,8 @@ public class ContraptionMixin {
 
         }
 
-        if(state.getBlock() instanceof LevititeCasingBlock) {
-            // Collect group of connected linear chassis
+        if(state.getBlock() instanceof LevititeCasingBlock || state.getBlock() instanceof IEnvelope) {
+
             for (Direction offset : Iterate.directions) {
                 BlockPos current = pos.relative(offset);
                 if (visited.contains(current))
@@ -53,7 +55,8 @@ public class ContraptionMixin {
                     return;
 
                 BlockState neighbourState = world.getBlockState(current);
-                if (state.getBlock() != neighbourState.getBlock())
+                if (!((state.getBlock() == neighbourState.getBlock()) ||
+                        (state.getBlock() instanceof IEnvelope && neighbourState.getBlock() instanceof IEnvelope)))
                     continue;
 
                 frontier.add(current);

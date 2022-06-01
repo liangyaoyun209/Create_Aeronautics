@@ -6,6 +6,8 @@ import com.eriksonn.createaeronautics.blocks.airship_assembler.AirshipAssemblerB
 import com.eriksonn.createaeronautics.blocks.analog_clutch.AnalogClutchBlock;
 import com.eriksonn.createaeronautics.blocks.compass_table.CompassTableBlock;
 import com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing.GyroscopicBearingBlock;
+import com.eriksonn.createaeronautics.blocks.hot_air.EnvelopeBlock;
+import com.eriksonn.createaeronautics.blocks.hot_air.EnvelopeEncasedShaftBlock;
 import com.eriksonn.createaeronautics.blocks.optical_sensor.OpticalSensorBlock;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.blocks.redstone.modulating_redstone_link.ModulatingRedstoneLinkBlock;
@@ -22,6 +24,12 @@ import com.simibubi.create.content.AllSections;
 import com.simibubi.create.content.contraptions.base.CasingBlock;
 import com.simibubi.create.foundation.block.BlockStressDefaults;
 import com.simibubi.create.foundation.data.*;
+import com.simibubi.create.content.contraptions.components.structureMovement.bearing.SailBlock;
+import com.simibubi.create.foundation.block.DyedBlockList;
+import com.simibubi.create.foundation.data.BlockStateGen;
+import com.simibubi.create.foundation.data.BuilderTransformers;
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.repack.registrate.util.entry.BlockEntry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.AbstractFurnaceBlock;
@@ -30,6 +38,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraft.item.DyeColor;
+import net.minecraft.util.IItemProvider;
 
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 
@@ -107,6 +117,63 @@ public class CABlocks {
             .item().transform(customItemModel())
             .addLayer(() -> RenderType::translucent)
             .register();
+
+    public static final BlockEntry<EnvelopeBlock> ENVELOPE_BLOCK= REGISTRATE.block("white_envelope_block", (p) -> {
+        return EnvelopeBlock.withCanvas(p, DyeColor.WHITE);
+    })
+            .blockstate((c, p) -> p.simpleBlock(c.get(), p.models().cubeAll(c.getName(), p.modLoc("block/envelope_block/envelope_white"))))
+            .initialProperties(SharedProperties::wooden)
+            .properties(AbstractBlock.Properties::noOcclusion)
+            .simpleItem()
+            .tag(CATags.ENVELOPE_BLOCKS)
+            .register();
+
+    public static final DyedBlockList<EnvelopeBlock> DYED_ENVELOPE_BLOCKS = new DyedBlockList<>(colour -> {
+        if (colour == DyeColor.WHITE) {
+            return ENVELOPE_BLOCK;
+        } else {
+            String colourName = colour.getSerializedName();
+            return REGISTRATE.block( colourName+"_envelope_block", (p) -> {
+                return EnvelopeBlock.withCanvas(p, colour);
+            }).blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
+                    .cubeAll(c.getName(), p.modLoc("block/envelope_block/envelope_"+colourName))))
+                    .properties(AbstractBlock.Properties::noOcclusion)
+                    .initialProperties(SharedProperties::wooden)
+                    .loot((p, b) -> {
+                p.dropOther(b, (IItemProvider) ENVELOPE_BLOCK.get());
+            }).tag(CATags.ENVELOPE_BLOCKS)
+                    .register();
+        }
+    });
+
+    public static final BlockEntry<EnvelopeEncasedShaftBlock> ENVELOPE_ENCASED_SHAFT =
+            REGISTRATE.block("white_envelope_encased_shaft", p -> EnvelopeEncasedShaftBlock.withCanvas(p, DyeColor.WHITE))
+                    .properties(AbstractBlock.Properties::noOcclusion)
+                    .initialProperties(SharedProperties::wooden)
+                    .blockstate((c, p) -> BlockStateGen.axisBlock(c,p, blockState ->p.models()
+                            .withExistingParent("white_envelope_encased_shaft", p.modLoc("block/envelope_encased_shaft/block"))
+                            .texture("0", p.modLoc("block/envelope_block/envelope_white"))))
+                    //.item().transform(customItemModel())
+                    .tag(CATags.ENCASED_ENVELOPE_BLOCKS)
+                    .register();
+
+    public static final DyedBlockList<EnvelopeEncasedShaftBlock> DYED_ENVELOPE_ENCASED_SHAFT = new DyedBlockList<>(colour -> {
+        if (colour == DyeColor.WHITE) {
+            return ENVELOPE_ENCASED_SHAFT;
+        }
+        String colourName = colour.getSerializedName();
+        return REGISTRATE.block(colourName + "_envelope_encased_shaft", p -> EnvelopeEncasedShaftBlock.withCanvas(p, colour))
+                .properties(AbstractBlock.Properties::noOcclusion)
+                .initialProperties(SharedProperties::wooden)
+
+                .blockstate((c, p) -> BlockStateGen.axisBlock(c,p, blockState ->p.models()
+                        .withExistingParent(colourName + "_envelope_encased_shaft", p.modLoc("block/envelope_encased_shaft/block"))
+                        .texture("0", p.modLoc("block/envelope_block/envelope_"+colourName))))
+
+                .loot((p, b) -> p.dropOther(b, ENVELOPE_ENCASED_SHAFT.get()))
+                .tag(CATags.ENCASED_ENVELOPE_BLOCKS)
+                .register();
+    });
 
 
     public static final BlockEntry<AnalogClutchBlock> ANAlOG_CLUTCH = REGISTRATE.block("analog_clutch", AnalogClutchBlock::new)

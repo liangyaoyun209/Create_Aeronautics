@@ -16,6 +16,12 @@ public class CATags {
     public static final ITag.INamedTag<Block> ROUGH = tag("rough");
     public static final ITag.INamedTag<Block> SMOOTH = tag("smooth");
 
+    public static final ITag.INamedTag<Block> ENVELOPE_BLOCKS = tag("envelope_blocks");
+
+    public static final ITag.INamedTag<Block> ENCASED_ENVELOPE_BLOCKS = tag("encased_envelope_blocks");
+
+    public static final ITag.INamedTag<Block> AIRTIGHT  = tag("airtight");
+
     private static ITag.INamedTag<Block> tag(String path) {
         return BlockTags.bind(CreateAeronautics.asResource(path).toString());
     }

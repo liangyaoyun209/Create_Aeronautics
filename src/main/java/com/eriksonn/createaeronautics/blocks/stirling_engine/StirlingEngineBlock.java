@@ -4,6 +4,7 @@ package com.eriksonn.createaeronautics.blocks.stirling_engine;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingBlock;
 import com.eriksonn.createaeronautics.index.CAShapes;
 import com.eriksonn.createaeronautics.index.CATileEntities;
+import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.contraptions.base.HorizontalKineticBlock;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -89,12 +90,12 @@ public class StirlingEngineBlock extends HorizontalKineticBlock {
             return ActionResultType.SUCCESS;
         StirlingEngineTileEntity te = (StirlingEngineTileEntity)worldIn.getBlockEntity(pos);
 
-            ItemStack cannonItem = te.currentStack.copy();
-            if (cannonItem.isEmpty() && heldByPlayer.isEmpty())
+            ItemStack currentItemStack = te.currentStack.copy();
+            if (currentItemStack.isEmpty() && heldByPlayer.isEmpty())
                 return ActionResultType.SUCCESS;
             if((!heldByPlayer.isEmpty() && !te.invHandler.orElse(null).isItemValid(0,heldByPlayer)))
                 return ActionResultType.PASS;
-            if(cannonItem.isEmpty())
+            if(currentItemStack.isEmpty())
             {
                 te.currentStack =heldByPlayer;
                 player.setItemInHand(handIn,ItemStack.EMPTY);
@@ -102,13 +103,14 @@ public class StirlingEngineBlock extends HorizontalKineticBlock {
             }else
             if(!heldByPlayer.isEmpty())
             {
-                if(!ItemHandlerHelper.canItemStacksStack(cannonItem, heldByPlayer))
+                if(!ItemHandlerHelper.canItemStacksStack(currentItemStack, heldByPlayer))
                 {
                     return ActionResultType.SUCCESS;
                 }else
                 {
-                    int TargetAmount=cannonItem.getCount()+heldByPlayer.getCount();
-                    int TransferAmount = Math.min(TargetAmount-cannonItem.getCount(),heldByPlayer.getCount());
+                    int TargetAmount=currentItemStack.getCount()+heldByPlayer.getCount();
+                    TargetAmount=Math.min(TargetAmount,currentItemStack.getMaxStackSize());
+                    int TransferAmount = Math.min(TargetAmount-currentItemStack.getCount(),heldByPlayer.getCount());
                     if(TransferAmount==0)
                         return ActionResultType.SUCCESS;
                     te.currentStack.shrink(-TransferAmount);
@@ -118,7 +120,7 @@ public class StirlingEngineBlock extends HorizontalKineticBlock {
             }else
             {
                 te.currentStack=ItemStack.EMPTY;
-                player.setItemInHand(handIn,cannonItem);
+                player.setItemInHand(handIn,currentItemStack);
             }
 
             te.sendData();

@@ -58,6 +58,7 @@ public class AnalogClutchTileEntity extends GearshiftTileEntity {
 
     @Override
     public float getRotationSpeedModifier(Direction face) {
+
         if (hasSource()) {
             if (face != getSourceFacing()/* && getBlockState().getValue(BlockStateProperties.POWERED)*/) {
                 float power = level.getBestNeighborSignal(worldPosition) / 15.0f;

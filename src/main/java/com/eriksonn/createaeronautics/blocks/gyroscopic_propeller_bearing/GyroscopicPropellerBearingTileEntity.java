@@ -30,6 +30,7 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     public Vector3d tiltVector=new Vector3d(0,1,0);
     private Vector3d targetVector=new Vector3d(0,1,0);
     boolean powered=false;
+    boolean initialized=false;
     public GyroscopicPropellerBearingTileEntity(TileEntityType<? extends PropellerBearingTileEntity> type) {
         super(type);
         Quaternionf tiltQuatf=new Quaternionf(0,0,0,1);
@@ -83,6 +84,11 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
 
         Direction facing = level.getBlockState(worldPosition).getValue(BlockStateProperties.FACING);
         blockNormal = new Vector3d(facing.getStepX(),facing.getStepY(),facing.getStepZ());
+        if(!initialized)
+        {
+            tiltVector=blockNormal;
+            initialized=true;
+        }
 
         if(movedContraption==null)
             return;
@@ -106,7 +112,7 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     }
     public Vector3d getForce(BlockPos localPos, double airPressure, Vector3d velocity, AbstractContraptionRigidbody rigidbody)
     {
-        Vector3d globalTarget = new Vector3d(0,-getDirectionScale(),0);
+        Vector3d globalTarget = new Vector3d(0,1,0);
         setTilt(rigidbody.rotateInverse(globalTarget));
         return super.getForce(localPos,airPressure,velocity,rigidbody);
     }
