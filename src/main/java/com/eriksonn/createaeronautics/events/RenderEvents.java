@@ -95,7 +95,7 @@ public class RenderEvents {
             if(partialTicks == 1.0) airship.previousRenderTransform = airship.smoothedRenderTransform;
 
 
-            Quaternionf smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation, airship.renderTransform.orientation, partialTicks);
+            Quaternionf smoothieRotation = ContraptionSmoother.slerp(airship.previousRenderTransform.orientation.copy(), airship.renderTransform.orientation, partialTicks);
             Vector3d smoothiePos = ContraptionSmoother.lerp(airship.previousRenderTransform.position, airship.renderTransform.position, partialTicks);
             smoothieRotation.normalize();
 
@@ -210,7 +210,9 @@ public class RenderEvents {
         stack.translate(0.5, 0.5, 0.5);
         Vector3d airshipPos = airship.smoothedRenderTransform.position;
         stack.translate(airshipPos.x, airshipPos.y, airshipPos.z);
-        stack.mulPose(airship.smoothedRenderTransform.orientation.toMojangQuaternion());
+        Quaternionf orientation = airship.smoothedRenderTransform.orientation.copy();
+        orientation.conj();
+        stack.mulPose(orientation.toMojangQuaternion());
 
         stack.translate(-airship.centerOfMassOffset.x, -airship.centerOfMassOffset.y, -airship.centerOfMassOffset.z);
         stack.translate(-0.5, -0.5, -0.5);

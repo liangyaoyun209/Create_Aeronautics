@@ -168,14 +168,14 @@ public class AirshipManager {
         Vector3d vecPos = new Vector3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, 0.5, 0.5);
         if(world.isClientSide && ClientAirshipEntityManager.airshipFromWorld(world) != null) {
             AirshipContraptionEntity airshipFromWorld = ClientAirshipEntityManager.airshipFromWorld(world);
-            return new AirshipOrientedInfo(airshipFromWorld,airshipFromWorld.toGlobalVector(vecPos.subtract(0, airshipFromWorld.getPlotPos().getY(), 0), 0f), airshipFromWorld.quat, airshipFromWorld.level, true);
+            return new AirshipOrientedInfo(airshipFromWorld,airshipFromWorld.toGlobalVector(vecPos.subtract(0, airshipFromWorld.getPlotPos().getY(), 0), 0f), airshipFromWorld.quat.copy(), airshipFromWorld.level, true);
         } else if (!world.isClientSide && world == AirshipDimensionManager.INSTANCE.getWorld()) {
             int airshipID = getIdFromPlotPos(pos);
 
             AirshipContraptionEntity airship = AllAirships.get(airshipID);
 
             BlockPos plotpos = getPlotPosFromId(airshipID);
-            return new AirshipOrientedInfo(airship,airship.toGlobalVector(vecPos.subtract(plotpos.getX(), plotpos.getY(), plotpos.getZ()), 0f), airship.quat, airship.level, true);
+            return new AirshipOrientedInfo(airship,airship.toGlobalVector(vecPos.subtract(plotpos.getX(), plotpos.getY(), plotpos.getZ()), 0f), airship.quat.copy(), airship.level, true);
         } else {
             return new AirshipOrientedInfo(null,vecPos, Quaternionf.ONE.copy(), world, false);
         }

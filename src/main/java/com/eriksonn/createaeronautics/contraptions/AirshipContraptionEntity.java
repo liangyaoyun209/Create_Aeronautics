@@ -135,7 +135,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
 
         // smoothy stuff woo
         smoother.latestPosition = position();
-        smoother.latestOrientation = quat;
+        smoother.latestOrientation = quat.copy();
         smoother.tick();
         previousRenderTransform = renderTransform;
         renderTransform = new Transform(smoother.smoothedPosition, smoother.smoothedOrientation);
@@ -525,7 +525,7 @@ public class AirshipContraptionEntity extends AbstractContraptionEntity {
         int var7 = matrixStacks.length;
 
         int var8;
-        Quaternionf Q = smoothedRenderTransform.orientation;
+        Quaternionf Q = smoothedRenderTransform.orientation.copy();
         Vector3d partialPosition = getPartialPosition(partialTicks);
         Vector3d position = position();
         Q.conj();
