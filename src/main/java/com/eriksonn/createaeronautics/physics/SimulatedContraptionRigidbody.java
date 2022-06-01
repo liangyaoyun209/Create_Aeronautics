@@ -6,7 +6,6 @@ import com.eriksonn.createaeronautics.contraptions.AirshipContraption;
 import com.eriksonn.createaeronautics.blocks.propeller_bearing.PropellerBearingTileEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipContraptionEntity;
 import com.eriksonn.createaeronautics.contraptions.AirshipManager;
-import com.eriksonn.createaeronautics.dimension.AirshipDimensionManager;
 import com.eriksonn.createaeronautics.index.CAConfig;
 import com.eriksonn.createaeronautics.mixins.ControlledContraptionEntityMixin;
 import com.eriksonn.createaeronautics.physics.api.ContraptionEntityPhysicsAdapter;
@@ -22,6 +21,7 @@ import com.eriksonn.createaeronautics.physics.collision.resolution.IIterativeMan
 import com.eriksonn.createaeronautics.physics.collision.resolution.SequentialManifoldSolver;
 import com.eriksonn.createaeronautics.physics.collision.shape.MeshCollisionShapeGenerator;
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.components.fan.EncasedFanTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
@@ -40,7 +40,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.gen.feature.template.Template;
@@ -56,23 +55,23 @@ import static com.eriksonn.createaeronautics.physics.PhysicsUtils.getAirPressure
 public class SimulatedContraptionRigidbody extends AbstractContraptionRigidbody {
 //    AirshipContraptionEntity entity;
 public AirshipContraption contraption;
-    public Quaternion orientation;
+    public Quaternionf orientation = Quaternionf.ONE;
     public Vector3d momentum=Vector3d.ZERO;
 
-    Vector3d centerOfMass=Vector3d.ZERO;
+    public Vector3d centerOfMass=Vector3d.ZERO;
     double[][] inertiaTensor=new double[3][3];
     double mass;
 
     public Vector3d angularMomentum=Vector3d.ZERO;
-    Vector3d angularVelocity=Vector3d.ZERO;
-    public Quaternion principalRotation;
+    public Vector3d angularVelocity=Vector3d.ZERO;
+    public Quaternionf principalRotation;
     public double[] principalInertia =new double[3];
     Vector3d localForce =Vector3d.ZERO;
     Vector3d globalForce =Vector3d.ZERO;
     Vector3d localTorque =Vector3d.ZERO;
     Vector3d globalTorque =Vector3d.ZERO;
     public Vector3d globalVelocity=Vector3d.ZERO;
-    Vector3d localVelocity=Vector3d.ZERO;
+    public Vector3d localVelocity=Vector3d.ZERO;
     double totalAccumulatedBuoyancy =0.0;
 
     AirshipAirFiller airshipAirFiller = new AirshipAirFiller();
@@ -82,8 +81,6 @@ public AirshipContraption contraption;
     public static final Map<Block, Supplier<IFloatingBlockProvider>> simpleCustomFloatingBlock = new HashMap<>();
     boolean isInitialized=false;
 
-    Vector3f CurrentAxis=new Vector3f(1,1,1);
-    float CurrentAxisAngle = 0;
     public Map<UUID, SubcontraptionRigidbody> subcontraptionRigidbodyMap;
 
     Vector3d inertiaTensorI;
@@ -101,7 +98,7 @@ public AirshipContraption contraption;
     {
         simpleCustomFloatingBlock.put(Blocks.END_STONE, () -> new CustomFloatingBlockProvider(1.5,0.5,true));
 
-        orientation=Quaternion.ONE.copy();
+        orientation= Quaternionf.ONE.copy();
         //orientation=new Quaternion(0,1,0,1);
         //orientation.normalize();
 
@@ -109,7 +106,7 @@ public AirshipContraption contraption;
         this.adapter=adapter;
         momentum=Vector3d.ZERO;
 
-        principalRotation =Quaternion.ONE.copy();
+        principalRotation = Quaternionf.ONE.copy();
 
         //principialRotation=new Quaternion(1,2,3,4);
         //principialRotation.normalize();
@@ -191,14 +188,14 @@ public AirshipContraption contraption;
         globalVelocity=momentum.scale(1.0/mass);
         localVelocity = MathUtils.rotateQuatReverse(globalVelocity,orientation);
 
-        float c = (float)Math.cos(CurrentAxisAngle);
-        float s = (float)Math.sin(CurrentAxisAngle);
-        CurrentAxis=new Vector3f(c,3,s);
-        CurrentAxis=new Vector3f(0,1,0);
-        CurrentAxis.normalize();
-
-
-        CurrentAxisAngle+=0.01f;
+//        float c = (float)Math.cos(CurrentAxisAngle);
+//        float s = (float)Math.sin(CurrentAxisAngle);
+//        CurrentAxis=new Vector3f(c,3,s);
+//        CurrentAxis=new Vector3f(0,1,0);
+//        CurrentAxis.normalize();
+//
+//
+//        CurrentAxisAngle+=0.01f;
         angularMomentum=angularMomentum.scale(0.995);
 
         if(doCollisions) {
@@ -272,7 +269,7 @@ public AirshipContraption contraption;
 
     public void endPhysicsTick() {
         Vector3d v = angularVelocity.scale(deltaTime*0.5f);
-        Quaternion q = new Quaternion((float)v.x,(float)v.y,(float)v.z, 1.0f);
+        Quaternionf q = new Quaternionf((float)v.x,(float)v.y,(float)v.z, 1.0f);
         q.mul(orientation);
         orientation=q;
         orientation.normalize();
@@ -298,7 +295,7 @@ public AirshipContraption contraption;
         compound.put("Momentum",writeVector(momentum));
         compound.put("AngularMomentum",writeVector(angularMomentum));
     }
-    CompoundNBT writeQuaternion(Quaternion Q)
+    CompoundNBT writeQuaternion(Quaternionf Q)
     {
         CompoundNBT compound=new CompoundNBT();
         compound.putFloat("R",Q.r());
@@ -307,13 +304,13 @@ public AirshipContraption contraption;
         compound.putFloat("K",Q.k());
         return compound;
     }
-    Quaternion readQuaternion(CompoundNBT compound)
+    Quaternionf readQuaternion(CompoundNBT compound)
     {
         float r = compound.getFloat("R");
         float i = compound.getFloat("I");
         float j = compound.getFloat("J");
         float k = compound.getFloat("K");
-        return new Quaternion(i,j,k,r);
+        return new Quaternionf(i,j,k,r);
     }
     CompoundNBT writeVector(Vector3d V)
     {
@@ -341,10 +338,10 @@ public AirshipContraption contraption;
     {
         subcontraptionRigidbodyMap.remove(uuid);
     }
-    public Quaternion getPartialOrientation(float partialTick)
+    public Quaternionf getPartialOrientation(float partialTick)
     {
         Vector3d v = angularVelocity.scale(partialTick* deltaTime*0.5f);
-        Quaternion q = new Quaternion((float)v.x,(float)v.y,(float)v.z, 1.0f);
+        Quaternionf q = new Quaternionf((float)v.x,(float)v.y,(float)v.z, 1.0f);
         q.mul(orientation);
         q.normalize();
         return q;
@@ -426,9 +423,9 @@ public AirshipContraption contraption;
             if(adapter instanceof ContraptionEntityPhysicsAdapter)
             {
                AirshipContraptionEntity entity = ((ContraptionEntityPhysicsAdapter)adapter).contraption;
-               if(entity.level.isClientSide && entity.fakeClientWorld != null) {
+               if(entity.level.isClientSide && entity.helper.getWorld() != null) {
                    floatingProvider.tickOnForceApplication(
-                        entity.fakeClientWorld,
+                        entity.helper.getWorld(),
                         entry.getKey().offset(0,AirshipManager.getPlotPosFromId(entity.plotId).getY(),0),
                         rotateInverse(new Vector3d(0, relativeGravityReaction, 0)),
                         rotateInverse(reactionForce));
@@ -701,7 +698,7 @@ public AirshipContraption contraption;
         Vector3d change = gradientVector.scale(stepScale*(cost-minCost)/gradientVector.lengthSqr());
 
         //System.out.println("Cost: "+cost);
-        Quaternion q=new Quaternion((float)change.x,(float)change.y,(float)change.z,1.0f);
+        Quaternionf q=new Quaternionf((float)change.x,(float)change.y,(float)change.z,1.0f);
         principalRotation.mul(q);
         principalRotation.normalize();
     }
@@ -1028,7 +1025,7 @@ public AirshipContraption contraption;
             averageSquaredMagnitudes*=(1.0/totalCount);
         }
 
-        public Tuple<Vector3d, Vector3d> getForceAndPosition(Quaternion rotation, Vector3d referencePos)
+        public Tuple<Vector3d, Vector3d> getForceAndPosition(Quaternionf rotation, Vector3d referencePos)
         {
             if(totalCount==0)
                 return new Tuple<>(Vector3d.ZERO, Vector3d.ZERO);
@@ -1056,7 +1053,8 @@ public AirshipContraption contraption;
                             .scale(1.0/averageBuoyancy);
             return new Tuple<>(upVector.scale(totalBuoyancy),averageBuoyancyPosition);
         }
-        public double apply(SimulatedContraptionRigidbody body, Quaternion rotation, Vector3d referencePos)
+        public double apply(SimulatedContraptionRigidbody body, Quaternionf rotation, Vector3d referencePos)
+
         {
 
             Tuple<Vector3d, Vector3d> T = getForceAndPosition(rotation,referencePos);
@@ -1087,7 +1085,7 @@ public AirshipContraption contraption;
     /**
      * Converts a quaternion to an array
      */
-    public double[] quatToArray(Quaternion q)
+    public double[] quatToArray(Quaternionf q)
     {
         return new double[]{q.i(),q.j(),q.k(),q.r()};
     }
@@ -1095,9 +1093,9 @@ public AirshipContraption contraption;
     /**
      * Converts an array to a quaternion
      */
-    public Quaternion arrayToQuat(double[] array)
+    public Quaternionf arrayToQuat(double[] array)
     {
-        return new Quaternion((float)array[0], (float)array[1], (float)array[2], (float)array[3]);
+        return new Quaternionf((float)array[0], (float)array[1], (float)array[2], (float)array[3]);
     }
 
 }

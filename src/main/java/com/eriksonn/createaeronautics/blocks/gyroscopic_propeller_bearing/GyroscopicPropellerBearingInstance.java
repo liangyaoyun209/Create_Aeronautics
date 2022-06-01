@@ -2,6 +2,7 @@ package com.eriksonn.createaeronautics.blocks.gyroscopic_propeller_bearing;
 
 import com.eriksonn.createaeronautics.index.CABlockPartials;
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
@@ -105,7 +106,7 @@ public class GyroscopicPropellerBearingInstance extends BackHalfShaftInstance im
 
             Vector3d translatedPos=originalPos;
 
-            translatedPos = MathUtils.rotateQuatReverse(translatedPos,blockOrientation);
+            translatedPos = MathUtils.rotateQuatReverse(translatedPos,new Quaternionf(blockOrientation));
             double translateDistance = -translatedPos.dot(bearing.tiltVector)/bearing.blockNormal.dot(bearing.tiltVector);
             //translateDistance=0;
             translatedPos = originalPos.add(new Vector3d(0. ,1,0).scale(translateDistance+3/16.0));

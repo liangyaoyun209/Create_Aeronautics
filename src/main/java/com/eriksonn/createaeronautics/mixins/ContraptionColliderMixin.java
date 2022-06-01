@@ -31,6 +31,7 @@ public class ContraptionColliderMixin {
         {
             AirshipContraptionEntity airshipEntity=(AirshipContraptionEntity)contraptionEntity;
             position=position.add(airshipEntity.centerOfMassOffset);
+            position = position.subtract(airshipEntity.position().subtract(airshipEntity.renderTransform.position));
         }
         return position;
     }

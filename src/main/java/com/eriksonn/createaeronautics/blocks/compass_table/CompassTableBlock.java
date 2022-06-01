@@ -185,8 +185,7 @@ public class CompassTableBlock extends HorizontalBlock implements ITE<CompassTab
 			}
 		} else {
 			if(heldItem.isEmpty()) {
-				if(te.getLevel().isClientSide) return ActionResultType.SUCCESS;
-				ItemStack stack = te.inventory.extractItem(0, 1, false);
+					ItemStack stack = te.inventory.extractItem(0, 1, false);
 				player.setItemInHand(handIn, stack);
 			}
 		}

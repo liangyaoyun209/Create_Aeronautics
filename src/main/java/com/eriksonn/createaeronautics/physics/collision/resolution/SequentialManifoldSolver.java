@@ -5,7 +5,6 @@ import com.eriksonn.createaeronautics.physics.IRigidbody;
 import com.eriksonn.createaeronautics.physics.SimulatedContraptionRigidbody;
 import com.eriksonn.createaeronautics.physics.collision.detection.Contact;
 import com.eriksonn.createaeronautics.physics.collision.detection.Manifold;
-import com.sun.org.apache.bcel.internal.generic.DCONST;
 import hellfirepvp.astralsorcery.common.util.data.Vector3;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.vector.Vector3d;
@@ -23,7 +22,7 @@ public class SequentialManifoldSolver implements IIterativeManifoldSolver {
 
     @Override
     public double getRestitution(BlockState blockA, BlockState blockB) {
-        return 0.0;
+        return 0.9;
     }
 
     @Override

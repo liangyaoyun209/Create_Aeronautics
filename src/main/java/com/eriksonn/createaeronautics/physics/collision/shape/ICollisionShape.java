@@ -2,7 +2,6 @@ package com.eriksonn.createaeronautics.physics.collision.shape;
 
 import com.eriksonn.createaeronautics.physics.IRigidbody;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 
 /**

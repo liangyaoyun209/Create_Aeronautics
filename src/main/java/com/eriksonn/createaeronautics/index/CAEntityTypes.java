@@ -22,7 +22,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 
 public class CAEntityTypes {
-    public static final EntityEntry<AirshipContraptionEntity> AIRSHIP_CONTRAPTION = contraption("airship_contraption", AirshipContraptionEntity::new, () -> ContraptionEntityRenderer::new, 5, 1, true);
+    public static final EntityEntry<AirshipContraptionEntity> AIRSHIP_CONTRAPTION = contraption("airship_contraption", AirshipContraptionEntity::new, () -> ContraptionEntityRenderer::new, 5, 1, false);
     public static ContraptionType AIRSHIP = ContraptionType.register("airship", AirshipContraption::new);
     public static final EntityEntry<GyroscopicControlledContraptionEntity> GYROSCOPIC_CONTROLLED_CONTRAPTION = contraption("gyroscopic_bearing_contraption", GyroscopicControlledContraptionEntity::new, () -> {
         return ContraptionEntityRenderer::new;

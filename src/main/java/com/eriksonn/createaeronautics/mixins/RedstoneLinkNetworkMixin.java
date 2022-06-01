@@ -44,10 +44,14 @@ public class RedstoneLinkNetworkMixin {
 
                 for (Iterator<IRedstoneLinkable> iterator = airshipNetwork.iterator(); iterator.hasNext();) {
                     IRedstoneLinkable inAirshipDimensionActor = iterator.next();
+
                     if (!inAirshipDimensionActor.isAlive()) {
                         iterator.remove();
                         continue;
                     }
+
+                    if(AirshipManager.getIdFromPlotPos(inAirshipDimensionActor.getLocation()) != airship.plotId)
+                        continue;
 
                     if(!withinRange(inRealWorldActor, airship, plotPos, inAirshipDimensionActor)) {
                         iterator.remove();
@@ -61,7 +65,7 @@ public class RedstoneLinkNetworkMixin {
                         IRedstoneLinkable inRealWorldActor2 = iterator1.next();
 
                         if(!inRealWorldActor2.isAlive()) {
-                            iterator1.remove();
+                             iterator1.remove();
                             continue;
                         }
 

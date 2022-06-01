@@ -1,6 +1,7 @@
 package com.eriksonn.createaeronautics.blocks.stationary_potato_cannon;
 
 import com.eriksonn.createaeronautics.index.CABlockPartials;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.matrix.MatrixStack;

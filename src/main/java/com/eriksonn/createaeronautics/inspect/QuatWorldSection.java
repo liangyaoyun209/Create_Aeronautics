@@ -7,8 +7,7 @@ import com.simibubi.create.foundation.ponder.PonderScene;
 import com.simibubi.create.foundation.ponder.Selection;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.utility.VecHelper;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class QuatWorldSection extends WorldSectionElement {
@@ -51,11 +50,11 @@ public class QuatWorldSection extends WorldSectionElement {
                 .translate(VecHelper.lerp(pt, prevAnimatedOffset, getAnimatedOffset()));
         ms.translate(center.x, center.y, center.z);
 
-        Quaternion quat = rigidbody.getPartialOrientation(pt);
+        Quaternionf quat = rigidbody.getPartialOrientation(pt);
         // invert the quaternion
         quat.conj();
 
-        ms.mulPose(quat);
+        ms.mulPose(quat.toMojangQuaternion());
         ms.translate(-center.x, -center.y, -center.z);
     }
 }

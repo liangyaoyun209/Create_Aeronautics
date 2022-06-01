@@ -5,6 +5,7 @@ import com.eriksonn.createaeronautics.physics.AbstractContraptionRigidbody;
 import com.eriksonn.createaeronautics.utils.BearingContraptionExtension;
 
 import com.eriksonn.createaeronautics.utils.MathUtils;
+import com.eriksonn.createaeronautics.utils.math.Quaternionf;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.components.structureMovement.AssemblyException;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.BearingBlock;
@@ -20,7 +21,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 
 import static net.minecraft.state.properties.BlockStateProperties.FACING;
 
@@ -32,8 +32,9 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
     boolean powered=false;
     public GyroscopicPropellerBearingTileEntity(TileEntityType<? extends PropellerBearingTileEntity> type) {
         super(type);
-        tiltQuat=new Quaternion(0,0,0,1);
-        tiltQuat.normalize();
+        Quaternionf tiltQuatf=new Quaternionf(0,0,0,1);
+        tiltQuatf.normalize();
+        tiltQuat = tiltQuatf.toMojangQuaternion();
     }
 
     @Override
@@ -85,7 +86,7 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
 
         if(movedContraption==null)
             return;
-        ((GyroscopicControlledContraptionEntity)movedContraption).tiltQuat=tiltQuat;
+        ((GyroscopicControlledContraptionEntity)movedContraption).tiltQuat=new Quaternionf(tiltQuat);
         ((GyroscopicControlledContraptionEntity)movedContraption).direction=getBlockState().getValue(FACING);
     }
     @Override
@@ -139,7 +140,7 @@ public class GyroscopicPropellerBearingTileEntity extends PropellerBearingTileEn
             tiltVector=target;
         tiltVector = tiltVector.normalize();
 
-        tiltQuat=MathUtils.getQuaternionFromVectorRotation(blockNormal,tiltVector);
+        tiltQuat=MathUtils.getQuaternionFromVectorRotation(blockNormal,tiltVector).toMojangQuaternion();
 
         thrustDirection=tiltVector;
     }

@@ -37,7 +37,6 @@ public class CreateAeronautics
     public CreateAeronautics() {
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(RenderEvents.class);
 
         CABlocks.register();
         CAItems.register();

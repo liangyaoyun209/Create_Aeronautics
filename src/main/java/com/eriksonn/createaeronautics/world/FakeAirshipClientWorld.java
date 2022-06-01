@@ -65,7 +65,7 @@ public class FakeAirshipClientWorld extends ClientWorld {
         airship.airshipContraption.setBlockState(pPos.offset(0, -plotPos.getY(), 0), pState, pState.hasTileEntity() ? getBlockEntity(pPos) : null);
 
 
-        airship.invalid = true;
+        airship.helper.invalid = true;
 //        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ContraptionRenderDispatcher.invalidate(airship.airshipContraption));
     }
 
@@ -78,7 +78,7 @@ public class FakeAirshipClientWorld extends ClientWorld {
         airship.airshipContraption.setBlockState(pPos.offset(0, -plotPos.getY(), 0), pNewState, pNewState.hasTileEntity() ? getBlockEntity(pPos) : null);
 
 
-        airship.invalid = true;
+        airship.helper.invalid = true;
 //        this.levelRenderer.blockChanged(this, pPos, pOldState, pNewState, pFlags);
     }
 
