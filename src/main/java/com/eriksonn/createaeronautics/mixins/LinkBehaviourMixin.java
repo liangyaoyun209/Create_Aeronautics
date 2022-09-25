@@ -25,7 +25,7 @@ public class LinkBehaviourMixin{
         TileEntity tile = ((LinkBehaviour) ((Object) this)).tileEntity;
         if(tile instanceof ModulatingRedstoneLinkTileEntity)
         {
-            //networkPower=((ModulatingRedstoneLinkTileEntity)tile).getCustomNetworkPower(networkPower);
+            networkPower=((ModulatingRedstoneLinkTileEntity)tile).getCustomNetworkPower(networkPower);
         }
         signalCallback.accept(networkPower);
     }
