@@ -121,7 +121,7 @@ public class RedstoneLinkNetworkMixin {
                     iterator.remove();
                     continue;
                 }
-//
+
                 if(!withinRange(inRealWorldActor, airship, plotPos, inAirshipDimensionActor)) {
                     iterator.remove();
                     continue;
