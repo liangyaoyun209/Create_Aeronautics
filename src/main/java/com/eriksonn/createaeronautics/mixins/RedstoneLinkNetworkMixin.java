@@ -176,24 +176,24 @@ public class RedstoneLinkNetworkMixin {
         // range check
         return actor.getLocation().closerThan(new BlockPos(overworldPos), AllConfigs.SERVER.logistics.linkRange.get());
     }
-    //@Inject(method = "updateNetworkOf",locals = LocalCapture.CAPTURE_FAILHARD, remap = false, at = @At(value = "INVOKE",target="Lcom/simibubi/create/foundation/tileEntity/behaviour/linked/LinkBehaviour;setReceivedStrength(I)V"))
-    //private void setReceivedStrength1(IWorld world, IRedstoneLinkable actor, CallbackInfo ci, Set network, int power, LinkBehaviour linkBehaviour)
-    //{
-    //    if(linkBehaviour.tileEntity instanceof ModulatingRedstoneLinkTileEntity)
-    //    {
-    //        ((ModulatingRedstoneLinkTileEntity) linkBehaviour.tileEntity).setTransmitterLink((LinkBehaviour)actor);
-    //    }
-    //}
-    //@Inject(method = "updateNetworkOf",locals = LocalCapture.CAPTURE_FAILHARD, remap = false, at = @At(value = "INVOKE",target="Lcom/simibubi/create/content/logistics/IRedstoneLinkable;setReceivedStrength(I)V"))
-    //private void setReceivedStrength2(IWorld world, IRedstoneLinkable actor, CallbackInfo ci, Set network, int power, Iterator var5, IRedstoneLinkable other)
-    //{
-    //    LinkBehaviour behaviour = (LinkBehaviour)other;
-    //    if(behaviour.tileEntity instanceof ModulatingRedstoneLinkTileEntity)
-    //    {
-    //        ((ModulatingRedstoneLinkTileEntity) behaviour.tileEntity).setTransmitterLink((LinkBehaviour)actor);
-    //    }
-    //}
-    /*@Unique
+    @Inject(method = "updateNetworkOf",locals = LocalCapture.CAPTURE_FAILHARD, remap = false, at = @At(value = "INVOKE",target="Lcom/simibubi/create/foundation/tileEntity/behaviour/linked/LinkBehaviour;setReceivedStrength(I)V"))
+    private void setReceivedStrength1(IWorld world, IRedstoneLinkable actor, CallbackInfo ci, Set network, int power, LinkBehaviour linkBehaviour)
+    {
+        if(linkBehaviour.tileEntity instanceof ModulatingRedstoneLinkTileEntity)
+        {
+            ((ModulatingRedstoneLinkTileEntity) linkBehaviour.tileEntity).setTransmitterLink((LinkBehaviour)actor);
+        }
+    }
+    @Inject(method = "updateNetworkOf",locals = LocalCapture.CAPTURE_FAILHARD, remap = false, at = @At(value = "INVOKE",target="Lcom/simibubi/create/content/logistics/IRedstoneLinkable;setReceivedStrength(I)V"))
+    private void setReceivedStrength2(IWorld world, IRedstoneLinkable actor, CallbackInfo ci, Set network, int power, Iterator var5, IRedstoneLinkable other)
+    {
+        LinkBehaviour behaviour = (LinkBehaviour)other;
+        if(behaviour.tileEntity instanceof ModulatingRedstoneLinkTileEntity)
+        {
+            ((ModulatingRedstoneLinkTileEntity) behaviour.tileEntity).setTransmitterLink((LinkBehaviour)actor);
+        }
+    }
+    @Unique
     private IRedstoneLinkable other;
     @Unique
     private IRedstoneLinkable actor;
@@ -215,5 +215,5 @@ public class RedstoneLinkNetworkMixin {
         }
         else
             return Math.max(a,b);
-    }*/
+    }
 }
